@@ -53,7 +53,7 @@ jobs:
   farm:
     runs-on: ubuntu-latest
     steps:
-      - uses: YOUR_GITHUB_USER/gitfarm@v1
+      - uses: FelipeBeltranING/gitfarm@v1
         with:
           github_user_name: ${{ github.repository_owner }}
           output: dist/farm.svg
