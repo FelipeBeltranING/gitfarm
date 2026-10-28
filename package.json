@@ -8,10 +8,28 @@
   },
   "scripts": {
     "test": "node --test",
-    "demo": "node src/cli.js --demo --streak 100 --user octocat --out examples/demo.svg"
+    "demo": "node src/cli.js --demo 7 --crop corn,sunflower,tomato --streak 100 --user octocat --out examples/demo.svg",
+    "dev": "node tools/dev-server.mjs",
+    "record": "node tools/record.mjs"
   },
   "engines": {
     "node": ">=20"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FelipeBeltranING/gitfarm.git"
+  },
+  "keywords": [
+    "github",
+    "profile-readme",
+    "contribution-graph",
+    "pixel-art",
+    "github-actions",
+    "svg"
+  ],
+  "author": "David Felipe Beltrán Tabares"
 }

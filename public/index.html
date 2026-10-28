@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitFarm · your contribution graph, but it's a farm</title>
+<meta name="description" content="A pixel-art farmer plants your GitHub contributions. Type your username, get a farm for your README.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🌻</text></svg>">
+<style>
+  :root {
+    --grass: #3d7530; --grass-2: #4f8f3c; --wood: #9a6338; --wood-dark: #5e3820; --wood-light: #b77c4a;
+    --cream: #fff3d1; --ink: #2b1d14; --sun: #f7b928; --sky: #a8dcf0;
+    --font: "Courier New", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--font); color: var(--cream); background: var(--grass);
+    background-image: linear-gradient(var(--grass-2) 2px, transparent 2px), linear-gradient(90deg, var(--grass-2) 2px, transparent 2px);
+    background-size: 18px 18px; min-height: 100vh;
+  }
+  main { max-width: 1060px; margin: 0 auto; padding: 32px 16px 64px; }
+  .board {
+    background: var(--wood); border: 4px solid var(--wood-dark); border-radius: 4px;
+    box-shadow: inset 0 3px 0 var(--wood-light), 0 6px 0 rgba(0,0,0,.25); padding: 20px 22px;
+  }
+  h1 { margin: 0; font-size: clamp(28px, 6vw, 46px); letter-spacing: 1px; text-shadow: 3px 3px 0 var(--wood-dark); }
+  .tagline { margin: 6px 0 0; color: #f3dfae; font-weight: bold; }
+  form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 22px; align-items: end; }
+  label { display: grid; gap: 6px; font-size: 13px; font-weight: bold; color: #f3dfae; }
+  input[type=text], select {
+    font: bold 15px var(--font); padding: 10px; color: var(--ink); background: var(--cream);
+    border: 3px solid var(--wood-dark); border-radius: 2px; width: 100%;
+  }
+  input[type=color] { width: 100%; height: 42px; border: 3px solid var(--wood-dark); background: var(--cream); padding: 2px; }
+  .user { grid-column: span 2; }
+  .check { display: flex; align-items: center; gap: 8px; height: 42px; }
+  button {
+    font: bold 16px var(--font); cursor: pointer; padding: 11px 16px; color: var(--ink);
+    background: var(--sun); border: 3px solid var(--ink); border-radius: 2px; box-shadow: 0 4px 0 var(--ink);
+  }
+  button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+  details { grid-column: 1 / -1; }
+  summary { cursor: pointer; font-weight: bold; color: #f3dfae; }
+  .colors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .preview { margin-top: 24px; text-align: center; }
+  .preview img { width: 100%; height: auto; image-rendering: pixelated; border-radius: 10px; box-shadow: 0 6px 0 rgba(0,0,0,.25); background: var(--grass); min-height: 120px; }
+  .status { min-height: 22px; margin: 10px 0 0; font-weight: bold; }
+  .snippet { margin-top: 24px; }
+  .snippet h2, .howto h2 { margin: 0 0 10px; font-size: 18px; }
+  .code { display: flex; gap: 10px; align-items: stretch; }
+  code, pre {
+    font: bold 13px var(--font); color: var(--cream); background: var(--ink); border-radius: 2px;
+    padding: 12px; overflow-x: auto; white-space: pre; flex: 1; margin: 0;
+  }
+  .howto { margin-top: 24px; }
+  .howto p { margin: 0 0 10px; line-height: 1.5; }
+  a { color: var(--sun); }
+  footer { margin-top: 28px; text-align: center; font-weight: bold; text-shadow: 2px 2px 0 rgba(0,0,0,.3); }
+  @media (max-width: 560px) { .user { grid-column: 1 / -1; } .colors { grid-template-columns: 1fr; } .code { flex-direction: column; } }
+</style>
+</head>
+<body>
+<main>
+  <section class="board">
+    <h1>🌻 GitFarm</h1>
+    <p class="tagline">Your contribution graph, but it's a farm. A pixel-art farmer plants every commit.</p>
+
+    <form id="form">
+      <label class="user">GitHub username
+        <input id="user" type="text" placeholder="octocat" autocomplete="off" spellcheck="false" required>
+      </label>
+      <label>Crops
+        <select id="crop">
+          <option value="auto">auto ✨</option>
+          <option value="corn">🌽 corn</option>
+          <option value="sunflower">🌻 sunflower</option>
+          <option value="tomato">🍅 tomato</option>
+          <option value="coffee">☕ coffee</option>
+          <option value="wheat">🌾 wheat</option>
+          <option value="strawberry">🍓 strawberry</option>
+          <option value="pumpkin">🎃 pumpkin</option>
+          <option value="cacao">🍫 cacao</option>
+          <option value="carrot">🥕 carrot</option>
+          <option value="rice">🍚 rice</option>
+        </select>
+      </label>
+      <label>Season
+        <select id="season">
+          <option value="none">none</option>
+          <option value="auto">auto (north)</option>
+          <option value="auto-south">auto (south)</option>
+          <option value="spring">🌸 spring</option>
+          <option value="summer">☀️ summer</option>
+          <option value="autumn">🍂 autumn</option>
+          <option value="winter">❄️ winter</option>
+          <option value="rainy">🌧️ rainy (tropics)</option>
+          <option value="dry">🌵 dry (tropics)</option>
+        </select>
+      </label>
+      <label>Time
+        <select id="time">
+          <option value="auto">auto ✨</option>
+          <option value="day">☀️ day</option>
+          <option value="night">🌙 night</option>
+        </select>
+      </label>
+      <label class="check"><input id="weather" type="checkbox" checked> weather</label>
+      <details>
+        <summary>🧑‍🌾 Dress your farmer</summary>
+        <div class="colors">
+          <label>Hat <input id="hat" type="color" value="#efc96d"></label>
+          <label>Shirt <input id="shirt" type="color" value="#d9473b"></label>
+          <label>Overalls <input id="overalls" type="color" value="#3d72bd"></label>
+        </div>
+      </details>
+      <button type="submit">🌱 Plant my farm</button>
+    </form>
+  </section>
+
+  <div class="preview">
+    <img id="farm" src="api/farm?demo=1&streak=100" alt="GitFarm preview" width="1008" height="262">
+    <p class="status" id="status">This is a demo farm. Type your username to plant yours!</p>
+  </div>
+
+  <section class="board snippet">
+    <h2>📋 Paste this in your README</h2>
+    <div class="code"><code id="snippet">![My GitHub farm](…)</code><button type="button" id="copy">Copy</button></div>
+  </section>
+
+  <section class="board howto">
+    <h2>🚜 Prefer a GitHub Action?</h2>
+    <p>Generate the farm in your own profile repo every day, with no external service:
+      see the <a href="https://github.com/FelipeBeltranING/gitfarm#plant-your-own-farm-2-minutes">setup guide</a>.</p>
+    <p>Animals unlock with your longest streak: 🐔 7 days · 🐄 30 days · 🐕 100 days.</p>
+  </section>
+
+  <footer>Made with 🌱 by <a href="https://github.com/FelipeBeltranING">FelipeBeltranING</a> · <a href="https://github.com/FelipeBeltranING/gitfarm">⭐ Star on GitHub</a></footer>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const DEFAULTS = { hat: "#efc96d", shirt: "#d9473b", overalls: "#3d72bd" };
+
+  function farmUrl(user = $("user").value.trim()) {
+    const p = new URLSearchParams({ user });
+    for (const [key, fallback] of [["crop", "auto"], ["season", "none"], ["time", "auto"]]) {
+      if ($(key).value !== fallback) p.set(key, $(key).value);
+    }
+    if (!$("weather").checked) p.set("weather", "false");
+    for (const key of ["hat", "shirt", "overalls"]) {
+      if ($(key).value !== DEFAULTS[key]) p.set(key, $(key).value);
+    }
+    return new URL(`api/farm?${p}`, location.href).href;
+  }
+
+  function showSnippet() {
+    const user = $("user").value.trim() || "your-username";
+    $("snippet").textContent = `![${user}'s GitHub farm](${farmUrl(user)})`;
+  }
+
+  $("form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const user = $("user").value.trim();
+    if (!user) return;
+    $("status").textContent = "🚜 Planting...";
+    $("farm").src = farmUrl();
+    showSnippet();
+    history.replaceState(null, "", `?user=${encodeURIComponent(user)}`);
+  });
+  $("farm").addEventListener("load", () => {
+    if ($("user").value.trim()) $("status").textContent = "🌻 Here's your farm! It replants itself every few hours.";
+  });
+  $("farm").addEventListener("error", () => { $("status").textContent = "Something went wrong. Check the username and try again."; });
+  $("form").addEventListener("input", showSnippet);
+
+  $("copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("snippet").textContent); $("copy").textContent = "Copied!"; }
+    catch { $("copy").textContent = "Select & copy"; }
+    setTimeout(() => { $("copy").textContent = "Copy"; }, 1500);
+  });
+
+  const initial = new URLSearchParams(location.search).get("user");
+  if (initial) { $("user").value = initial; $("form").requestSubmit(); } else { showSnippet(); }
+</script>
+</body>
+</html>

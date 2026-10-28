@@ -1,4 +1,4 @@
-name: "GitFarm"
+name: "GitFarm Contribution Farm"
 description: "Turn your contribution graph into a pixel-art farm where a little farmer plants your commits."
 author: "David Felipe Beltrán Tabares"
 branding:
@@ -18,7 +18,7 @@ inputs:
     required: false
     default: "dist/farm.svg"
   crop:
-    description: "auto (mix of your top languages), or one or more of corn, sunflower, tomato, coffee, wheat (comma separated)."
+    description: "auto (mix of your top languages), or up to 3 of corn, sunflower, tomato, coffee, strawberry, pumpkin, cacao, carrot, rice, wheat (comma separated)."
     required: false
     default: "auto"
   season:

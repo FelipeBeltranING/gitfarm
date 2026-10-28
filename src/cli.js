@@ -21,7 +21,7 @@ if (args.help) {
 
   --out <file>              output SVG (default dist/farm.svg)
   --token <token>           GitHub token (or GITHUB_TOKEN env var)
-  --crop <auto|crop[,crop]> corn, sunflower, tomato, coffee, wheat (default auto)
+  --crop <auto|crop[,crop]> corn, sunflower, tomato, coffee, strawberry, pumpkin, cacao, carrot, rice, wheat
   --season <name>           none, spring, summer, autumn, winter, rainy, dry, auto, auto-south
   --time <auto|day|night>   night owls get a night farm (default auto)
   --timezone <tz>           IANA time zone for --time auto (default UTC)

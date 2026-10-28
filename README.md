@@ -6,7 +6,9 @@
 A little pixel-art farmer walks your last year of GitHub activity, tills every day,
 and plants a crop wherever you committed. The more you code, the bigger the harvest.
 
-<img src="examples/demo.svg" alt="GitFarm demo: a farmer planting sunflowers over a contribution graph" width="100%">
+<img src="examples/demo.svg" alt="GitFarm demo: a farmer planting corn, sunflowers and tomatoes over a contribution graph" width="100%">
+
+**[🌐 Try it in your browser](#web-generator)** · **[🚜 Use the GitHub Action](#plant-your-own-farm-2-minutes)** · **[🎞️ Share it as a video](#share-it-as-a-video)**
 
 </div>
 
@@ -28,7 +30,12 @@ in proportion (languages under 15% are left out):
 | Python, Jupyter | 🌽 Corn |
 | JavaScript, TypeScript, HTML, CSS, Vue, Svelte | 🌻 Sunflower |
 | Rust, Go, Ruby, PHP | 🍅 Tomato |
-| C, C++, C#, Java, Kotlin, Swift | ☕ Coffee |
+| C, C++, C#, Java | ☕ Coffee |
+| Kotlin, Swift, Dart, Objective-C | 🍓 Strawberry |
+| Lua, GDScript, Haxe, shaders | 🎃 Pumpkin |
+| R, Julia, MATLAB, Fortran | 🍫 Cacao |
+| Haskell, Elixir, Erlang, Scala, Clojure, OCaml, F#, Elm | 🥕 Carrot |
+| Shell, PowerShell, Dockerfile, HCL, Nix, Makefile | 🍚 Rice |
 | Everything else | 🌾 Wheat |
 
 Don't like your crops? Pick them yourself with `crop: tomato` or `crop: corn,coffee`.
@@ -81,6 +88,22 @@ farmer_shirt: "#d9473b"
 farmer_overalls: "#3d72bd"
 ```
 
+## Web generator
+
+No setup at all: type your username, pick your options and copy the Markdown line into your README.
+The image is generated on the fly and refreshed every few hours.
+
+```md
+![My GitHub farm](https://YOUR-DEPLOYMENT.vercel.app/api/farm?user=your-username&season=auto)
+```
+
+All the options below work as query parameters (`crop`, `season`, `time`, `timezone`, `weather`,
+`hat`, `shirt`, `overalls`).
+
+**Deploy your own** (free on Vercel): import this repo at [vercel.com/new](https://vercel.com/new),
+optionally add a `GITHUB_TOKEN` environment variable for higher API limits, and you're done.
+Locally: `npm run dev` → <http://localhost:3000>.
+
 ## Plant your own farm (2 minutes)
 
 **1.** In your profile repo (`your-username/your-username`), create `.github/workflows/farm.yml`:
@@ -102,7 +125,7 @@ jobs:
   farm:
     runs-on: ubuntu-latest
     steps:
-      - uses: YOUR_GITHUB_USER/gitfarm@v1
+      - uses: FelipeBeltranING/gitfarm@v1
         with:
           github_user_name: ${{ github.repository_owner }}
           output: dist/farm.svg
@@ -155,10 +178,21 @@ node src/cli.js --demo --season winter --time night --out demo.svg # try a theme
 node src/cli.js --help                                             # all options
 ```
 
+## Share it as a video
+
+SVGs don't play on Reddit, X or Discord, so you can record your farm as an MP4 or a GIF:
+
+```bash
+npm install && npx playwright install chromium   # once
+node tools/record.mjs farm.svg --out farm.mp4     # or farm.gif (--fps, --width, --seconds)
+```
+
+Needs [ffmpeg](https://ffmpeg.org/download.html) on your PATH.
+
 ## Contributing
 
 PRs are very welcome, especially new crops and animals (it's just pixel art in `src/sprites.js`).
-Check the [issues](../../issues) labelled `good first issue`.
+Read the [contributing guide](CONTRIBUTING.md) and check the [issues](../../issues) labelled `good first issue`.
 
 ```bash
 npm test        # node:test, no dependencies

@@ -16,11 +16,42 @@ const LANGUAGE_CROPS = {
   "C++": "coffee",
   "C#": "coffee",
   Java: "coffee",
-  Kotlin: "coffee",
-  Swift: "coffee",
+  // mobile
+  Kotlin: "strawberry",
+  Swift: "strawberry",
+  Dart: "strawberry",
+  "Objective-C": "strawberry",
+  // game dev
+  Lua: "pumpkin",
+  GDScript: "pumpkin",
+  Haxe: "pumpkin",
+  ShaderLab: "pumpkin",
+  HLSL: "pumpkin",
+  GLSL: "pumpkin",
+  // science & data
+  R: "cacao",
+  Julia: "cacao",
+  MATLAB: "cacao",
+  Fortran: "cacao",
+  // functional
+  Haskell: "carrot",
+  Elixir: "carrot",
+  Erlang: "carrot",
+  Scala: "carrot",
+  Clojure: "carrot",
+  OCaml: "carrot",
+  "F#": "carrot",
+  Elm: "carrot",
+  // infra & scripting
+  Shell: "rice",
+  PowerShell: "rice",
+  Dockerfile: "rice",
+  HCL: "rice",
+  Nix: "rice",
+  Makefile: "rice",
 };
 
-export const CROP_NAMES = ["corn", "sunflower", "tomato", "coffee", "wheat"];
+export const CROP_NAMES = ["corn", "sunflower", "tomato", "coffee", "strawberry", "pumpkin", "cacao", "carrot", "rice", "wheat"];
 
 export const MIN_SHARE = 0.15;
 export const MAX_CROPS = 3;
