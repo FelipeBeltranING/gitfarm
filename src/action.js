@@ -1,4 +1,4 @@
-import { generate } from "./cli.js";
+import { generate } from "./generate.js";
 
 const input = (name, fallback) => {
   const v = process.env[`INPUT_${name.toUpperCase()}`];
