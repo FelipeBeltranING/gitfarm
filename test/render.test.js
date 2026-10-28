@@ -58,3 +58,38 @@ test("header shows stats and escapes the username", () => {
   assert.match(svg, /current streak: /);
   assert.match(svg, /best day: /);
 });
+
+test("every season and night render well-formed SVGs", () => {
+  for (const season of ["none", "spring", "summer", "autumn", "winter", "rainy", "dry", "auto", "auto-south"]) {
+    for (const time of ["day", "night"]) {
+      assertWellFormed(render({ season, time, streak: 100 }));
+    }
+  }
+});
+
+test("night adds a moon and fireflies", () => {
+  assert.doesNotMatch(render({ time: "day" }), /class="fly"/);
+  assert.match(render({ time: "night" }), /class="fly"/);
+});
+
+test("weather can be turned off", () => {
+  assert.match(render({ weather: true }), /class="cloudA"/);
+  assert.doesNotMatch(render({ weather: false }), /class="cloudA"|class="shower"/);
+});
+
+test("the farmer stops to water the best days", () => {
+  const svg = render();
+  assert.match(svg, /href="#farmerW" class="watering"/);
+  assert.ok(svg.match(/href="#drops"/g).length <= 12);
+});
+
+test("mixed crops define one sprite set per crop", () => {
+  const svg = render({ crop: undefined, crops: [{ crop: "corn", share: 0.5 }, { crop: "tomato", share: 0.5 }] });
+  assert.match(svg, /id="harvest-corn"/);
+  assert.match(svg, /id="harvest-tomato"/);
+  assert.match(svg, /growing corn &amp; tomato/);
+});
+
+test("farmer colors end up in the sprites", () => {
+  assert.match(render({ farmer: { shirt: "#123456" } }), /fill="#123456"/);
+});

@@ -18,9 +18,34 @@ inputs:
     required: false
     default: "dist/farm.svg"
   crop:
-    description: "auto (picked from your top language), corn, sunflower, tomato, coffee or wheat."
+    description: "auto (mix of your top languages), or one or more of corn, sunflower, tomato, coffee, wheat (comma separated)."
     required: false
     default: "auto"
+  season:
+    description: "none, spring, summer, autumn, winter, rainy, dry, auto (northern hemisphere) or auto-south."
+    required: false
+    default: "none"
+  time:
+    description: "auto (night farm for night owls), day or night."
+    required: false
+    default: "auto"
+  timezone:
+    description: "IANA time zone used by time: auto, e.g. America/Bogota."
+    required: false
+    default: "UTC"
+  weather:
+    description: "Drifting clouds and the occasional shower (true/false)."
+    required: false
+    default: "true"
+  farmer_hat:
+    description: "Hat color, e.g. #efc96d."
+    required: false
+  farmer_shirt:
+    description: "Shirt color, e.g. #d9473b."
+    required: false
+  farmer_overalls:
+    description: "Overalls color, e.g. #3d72bd."
+    required: false
 runs:
   using: "node24"
   main: "src/action.js"

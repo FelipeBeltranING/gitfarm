@@ -79,8 +79,11 @@ async function scrapeCalendar(user) {
   return { total, weeks: withLevels(weeks) };
 }
 
-/** Most-used language across the user's own (non-fork) repos. */
-export async function fetchTopLanguage(user, token) {
+/**
+ * Language shares across the user's own (non-fork) repos, biggest first.
+ * @returns {Promise<{language:string, share:number}[]>}
+ */
+export async function fetchLanguages(user, token) {
   const tally = new Map();
   if (token) {
     const data = await graphql(
@@ -94,12 +97,34 @@ export async function fetchTopLanguage(user, token) {
     }
   } else {
     const res = await fetch(`https://api.github.com/users/${encodeURIComponent(user)}/repos?per_page=100&sort=pushed`, { headers: UA });
-    if (!res.ok) return null;
+    if (!res.ok) return [];
     for (const repo of await res.json()) {
       if (!repo.fork && repo.language) tally.set(repo.language, (tally.get(repo.language) ?? 0) + 1);
     }
   }
-  let best = null;
-  for (const [lang, n] of tally) if (!best || n > best[1]) best = [lang, n];
-  return best?.[0] ?? null;
+  const total = [...tally.values()].reduce((a, b) => a + b, 0);
+  return [...tally]
+    .map(([language, n]) => ({ language, share: n / total }))
+    .sort((a, b) => b.share - a.share);
+}
+
+/** Most-used language across the user's own repos. */
+export async function fetchTopLanguage(user, token) {
+  return (await fetchLanguages(user, token))[0]?.language ?? null;
+}
+
+/** Timestamps of recent public activity (last ~90 days), used to guess day vs night owl. */
+export async function fetchActivityTimestamps(user, token) {
+  const headers = token ? { ...UA, Authorization: `bearer ${token}` } : UA;
+  const stamps = [];
+  for (let page = 1; page <= 3; page++) {
+    const res = await fetch(`https://api.github.com/users/${encodeURIComponent(user)}/events/public?per_page=100&page=${page}`, { headers });
+    if (!res.ok) break;
+    const events = await res.json();
+    for (const e of events) {
+      if (e.type === "PushEvent" || e.type === "PullRequestEvent" || e.type === "CreateEvent") stamps.push(e.created_at);
+    }
+    if (events.length < 100) break;
+  }
+  return stamps;
 }

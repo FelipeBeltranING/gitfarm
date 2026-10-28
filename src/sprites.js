@@ -389,3 +389,47 @@ export const SILO = [
   "eeeeex",
   "xxxxxx",
 ];
+
+// --- Iteration 3: watering, seasons -------------------------------------------
+export const FARMER_WATER = [
+  "....kkkk........",
+  "...kHHHHk.......",
+  "...kbbbbk.......",
+  ".kkHHHHHHkk.....",
+  "kHHHhhhhHHHk....",
+  ".kkFFFFFFkk.....",
+  "..kFEFFEFk......",
+  "..kFFFFFFk......",
+  "..kfFffFfk......",
+  ".kPPUPPUPPk.....",
+  "kFPpUUUUpPPPFx..",
+  "kFkUUuuUUk.xxxx.",
+  "..kUUUUUUk.xexxx",
+  "..kUUkkUUk.xxx..",
+  "..kUUk.kUUk.....",
+  "..kNNk.kNNk.....",
+];
+
+export const DROPS = [
+  "v...",
+  "..z.",
+  ".v..",
+  "...v",
+];
+
+export const PUDDLE = [
+  "........",
+  "........",
+  "........",
+  "..vvvv..",
+  ".vzvvvv.",
+  ".vvvvzv.",
+  "..vvvv..",
+  "........",
+];
+
+export const FLOWER = [
+  ".f.",
+  "fYf",
+  ".L.",
+];

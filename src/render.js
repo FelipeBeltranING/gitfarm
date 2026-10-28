@@ -1,10 +1,11 @@
 import {
-  PIXEL, PALETTE, FARMER_A, FARMER_B, TILE_GRASS, TILE_SOIL,
+  PIXEL, PALETTE, FARMER_A, FARMER_B, FARMER_WATER, TILE_GRASS, TILE_SOIL,
   SPROUT, SMALL, WEED, SPARKLE, CROPS,
   CHICKEN_A, CHICKEN_B, COW_A, COW_B, DOG_A, DOG_B, HAY,
-  SCARECROW, SHACK, BARN, SILO,
+  SCARECROW, SHACK, BARN, SILO, DROPS, PUDDLE, FLOWER,
 } from "./sprites.js";
 import { computeStats, unlockedAnimals, nextUnlock } from "./stats.js";
+import { themeFor, resolveSeason, farmerPalette } from "./themes.js";
 
 const CELL = 8 * PIXEL; // 16
 const GAP = 2;
@@ -25,12 +26,15 @@ const FADE = 0.8;
 const DOG_LAG = 0.22; // how far behind the farmer the dog trots
 const COUNT_STEPS = 8; // harvest counter ticks
 const COUNT_TICK = 0.12;
+const WATER = 0.4; // pause on each watered plot
+const MAX_WATERED = 12;
+const WEATHER_CYCLE = 36; // seconds, clouds + rain loop
 
 const FONT = "'Courier New',ui-monospace,monospace";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 // ---------------------------------------------------------------------------
-// Sprite helpers
+// Helpers
 
 function spriteRects(rows, palette) {
   let out = "";
@@ -66,7 +70,6 @@ export function hash(n) {
 /**
  * Random-but-stable wandering along a horizontal line: walk, pause, walk...
  * and come back to the starting point so the loop is seamless.
- * Returns CSS keyframes (translate + facing) and the loop duration.
  */
 function wander({ name, seed, minX, maxX, y, speed, pause, minDuration }) {
   const r = (() => { let k = 0; return () => hash(seed * 977 + k++); })();
@@ -104,6 +107,20 @@ function barnFor(total) {
   return "shack";
 }
 
+/** Opacity keyframes: visible only inside the given [start, end] windows (seconds). */
+function windowsKeyframes(name, windows, T, visibleInside = true) {
+  const p = (t) => `${((t / T) * 100).toFixed(3)}%`;
+  const inside = visibleInside ? 1 : 0;
+  let k = `0%{opacity:${1 - inside}}`;
+  for (const [a, b] of windows) k += `${p(a)}{opacity:${inside}}${p(b)}{opacity:${1 - inside}}`;
+  return `@keyframes ${name}{${k}100%{opacity:${1 - inside}}}`;
+}
+
+function normalizeCrops(crops, crop, language) {
+  const list = crops?.length ? crops : [{ crop: crop ?? "wheat", share: 1, language: language ?? null }];
+  return list.map((c) => ({ ...c, crop: CROPS[c.crop] ? c.crop : "wheat" }));
+}
+
 // ---------------------------------------------------------------------------
 
 /**
@@ -111,13 +128,27 @@ function barnFor(total) {
  * @param {string} opts.user
  * @param {number} opts.total
  * @param {Array<Array<{date:string, count:number, level:number}|null>>} opts.weeks  weeks[w][weekday]
- * @param {string} opts.crop   key of CROPS
- * @param {string} [opts.language]
- * @param {number} [opts.streak]  override the best streak (previews)
+ * @param {string} [opts.crop]       single crop (shortcut for `crops`)
+ * @param {string} [opts.language]   language behind the single crop
+ * @param {{crop:string, share:number, language?:string}[]} [opts.crops]  mixed crops
+ * @param {number} [opts.streak]     override the best streak (previews)
+ * @param {string} [opts.season]     none | spring | summer | autumn | winter | rainy | dry | auto | auto-south
+ * @param {"day"|"night"} [opts.time]
+ * @param {boolean} [opts.weather]   drifting clouds and the occasional shower
+ * @param {{hat?:string, shirt?:string, overalls?:string}} [opts.farmer]
+ * @param {Date} [opts.date]         generation date (for season: auto)
  */
-export function renderFarm({ user, total, weeks, crop = "wheat", language, streak }) {
-  const pal = { ...PALETTE };
-  const cropSprites = CROPS[crop] ?? CROPS.wheat;
+export function renderFarm({
+  user, total, weeks, crop, language, crops: cropMix, streak,
+  season = "none", time = "day", weather = true, farmer = {}, date = new Date(),
+}) {
+  const seasonName = resolveSeason(season, date);
+  const theme = themeFor(seasonName);
+  const night = time === "night";
+  const pal = { ...PALETTE, ...theme.palette, ...farmerPalette(farmer) };
+  const crops = normalizeCrops(cropMix, crop, language);
+  const mainCrop = crops[0].crop;
+
   const stats = computeStats(weeks);
   const bestStreak = streak ?? stats.longestStreak;
   const animals = unlockedAnimals(bestStreak);
@@ -131,7 +162,7 @@ export function renderFarm({ user, total, weeks, crop = "wheat", language, strea
   const cellY = (d) => GRID_TOP + d * PITCH;
 
   const defs = [];
-  const def = (id, rows) => defs.push(`<g id="${id}">${spriteRects(rows, pal)}</g>`);
+  const def = (id, rows, palette = pal) => defs.push(`<g id="${id}">${spriteRects(rows, palette)}</g>`);
   // Sprite whose origin is the middle of its feet (easy to flip and place on the ground).
   const footDef = (id, rows) => {
     const w = rows[0].length * PIXEL;
@@ -146,8 +177,22 @@ export function renderFarm({ user, total, weeks, crop = "wheat", language, strea
     for (let k = 0; k < 7; k++) path.push([w, w % 2 === 0 ? k : 6 - k]);
   }
   const N = path.length;
-  const cellTime = path.map((_, i) => START + i * STEP);
-  const walkEnd = cellTime[N - 1];
+  const dayAt = (i) => weeks[path[i][0]]?.[path[i][1]];
+
+  // The farmer stops to water your best harvest days.
+  const watered = new Set(
+    path.map((_, i) => i)
+      .filter((i) => dayAt(i)?.level === 4)
+      .sort((a, b) => (dayAt(b).count ?? 0) - (dayAt(a).count ?? 0) || a - b)
+      .slice(0, MAX_WATERED),
+  );
+  const cellTime = [];
+  let clock = START;
+  for (let i = 0; i < N; i++) {
+    cellTime.push(clock);
+    clock += STEP + (watered.has(i) ? WATER : 0);
+  }
+  const walkEnd = cellTime[N - 1] + (watered.has(N - 1) ? WATER : 0);
   const countStart = walkEnd + EXIT;
   const T = countStart + HOLD + FADE;
   const pct = (t) => `${((t / T) * 100).toFixed(3)}%`;
@@ -170,38 +215,49 @@ export function renderFarm({ user, total, weeks, crop = "wheat", language, strea
   };
   const anim = (name) => `class="a" style="animation-name:${name}"`;
 
+  // Mixed crops: each plot picks a crop by share, deterministically.
+  const cropAt = (i) => {
+    let r = hash(i * 53 + 11);
+    for (const c of crops) { if (r < c.share) return c.crop; r -= c.share; }
+    return mainCrop;
+  };
+
   // --- Field ---------------------------------------------------------------
   const base = [];
-  const crops = [];
+  const field = [];
   path.forEach(([w, d], i) => {
-    const day = weeks[w]?.[d];
+    const day = dayAt(i);
     const x = cellX(w);
     const y = cellY(d);
     base.push(`<use href="#grass" x="${x}" y="${y}"/>`);
     if (!day) return;
 
     const t = cellTime[i];
-    crops.push(`<use href="#soil" x="${x}" y="${y}" ${anim(on(t))}/>`);
+    field.push(`<use href="#soil" x="${x}" y="${y}" ${anim(on(t))}/>`);
 
     const level = day.level;
     if (level === 0) {
-      // Skipped days grow the occasional weed once the farmer has moved on.
-      if (hash(i * 31 + 7) < 0.2) {
-        crops.push(`<use href="#weed" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER * 2))}/>`);
+      // Skipped days: the occasional weed (or a puddle in the rainy season).
+      if (theme.puddles && hash(i * 17 + 3) < 0.18) {
+        field.push(`<use href="#puddle" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER))}/>`);
+      } else if (hash(i * 31 + 7) < 0.2) {
+        field.push(`<use href="#weed" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER * 2))}/>`);
       }
     } else if (level === 1) {
-      crops.push(`<use href="#sprout" x="${x}" y="${y}" ${anim(on(t + SPROUT_AFTER))}/>`);
+      field.push(`<use href="#sprout" x="${x}" y="${y}" ${anim(on(t + SPROUT_AFTER))}/>`);
     } else {
-      crops.push(`<use href="#sprout" x="${x}" y="${y}" ${anim(windowed(t + SPROUT_AFTER, t + GROWN_AFTER))}/>`);
-      const final = level === 2 ? "small" : level === 3 ? "grown" : "harvest";
-      if (level === 4) {
+      field.push(`<use href="#sprout" x="${x}" y="${y}" ${anim(windowed(t + SPROUT_AFTER, t + GROWN_AFTER))}/>`);
+      const c = cropAt(i);
+      if (level === 2) {
+        field.push(`<use href="#small" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER))}/>`);
+      } else if (level === 3) {
+        field.push(`<use href="#grown-${c}" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER))}/>`);
+      } else {
         const delay = (hash(i) * 2).toFixed(2);
-        crops.push(
-          `<g ${anim(on(t + GROWN_AFTER))}><use href="#${final}" x="${x}" y="${y}"/>` +
+        field.push(
+          `<g ${anim(on(t + GROWN_AFTER))}><use href="#harvest-${c}" x="${x}" y="${y}"/>` +
           `<use href="#sparkle" x="${x + 10}" y="${y - 1}" class="tw" style="animation-delay:${delay}s"/></g>`,
         );
-      } else {
-        crops.push(`<use href="#${final}" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER))}/>`);
       }
     }
   });
@@ -209,7 +265,7 @@ export function renderFarm({ user, total, weeks, crop = "wheat", language, strea
   // Scarecrow guarding your best day, with a tiny sign.
   let scarecrow = "";
   if (stats.bestDay) {
-    const i = path.findIndex(([w, d]) => weeks[w]?.[d]?.date === stats.bestDay.date);
+    const i = path.findIndex((_, k) => dayAt(k)?.date === stats.bestDay.date);
     if (i >= 0) {
       const [w, d] = path[i];
       const cx = cellX(w) + CELL / 2;
@@ -225,16 +281,27 @@ export function renderFarm({ user, total, weeks, crop = "wheat", language, strea
     }
   }
 
-  // --- Farmer & dog --------------------------------------------------------
+  // --- Farmer, watering & dog ------------------------------------------------
   const fx = (w) => cellX(w) + CELL / 2 - 12;
   const fy = (d) => cellY(d) + CELL - 2 - 32;
   const [, ld] = path[N - 1];
   const exitX = width - MARGIN_X + 2 - 12;
-  const farmerPts = [
-    [0, MARGIN_X - 30, fy(0)],
-    ...path.map(([w, d], i) => [cellTime[i], fx(w), fy(d)]),
-    [walkEnd + EXIT, exitX, fy(ld)],
-  ];
+  const farmerPts = [[0, MARGIN_X - 30, fy(0)]];
+  const waterWindows = [];
+  path.forEach(([w, d], i) => {
+    farmerPts.push([cellTime[i], fx(w), fy(d)]);
+    if (watered.has(i)) {
+      farmerPts.push([cellTime[i] + WATER, fx(w), fy(d)]);
+      waterWindows.push([cellTime[i], cellTime[i] + WATER]);
+      // Drops fall from the can's spout, just right of the farmer.
+      field.push(
+        `<g ${anim(windowed(cellTime[i] + 0.05, cellTime[i] + WATER))}>` +
+        `<use href="#drops" x="${fx(w) + 26}" y="${fy(d) + 24}" class="drip"/></g>`,
+      );
+    }
+  });
+  farmerPts.push([walkEnd + EXIT, exitX, fy(ld)]);
+
   const toFrames = (pts) => pts
     .map(([t, x, y]) => `${pct(t)}{transform:translate(${x}px,${y}px)}`)
     .join("") + `100%{transform:translate(${pts.at(-1)[1]}px,${pts.at(-1)[2]}px)}`;
@@ -290,29 +357,114 @@ export function renderFarm({ user, total, weeks, crop = "wheat", language, strea
 
   const roamMin = 12 + pastureSignW + 24;
   const roamMax = hayX - 16;
-  const animalCss = [];
+  const extraCss = [];
   if (animals.cow) {
     const cow = wander({ name: "cow", seed: 3, minX: roamMin, maxX: roamMax, y: floorY, speed: 6, pause: [3, 7], minDuration: 30 });
-    animalCss.push(cow.css);
+    extraCss.push(cow.css);
     pasture.push(`<g style="animation:cow ${cow.duration.toFixed(2)}s linear infinite"><g transform="scale(1.5)"><use href="#cowA" class="ga"/><use href="#cowB" class="gb"/></g></g>`);
   }
   for (let c = 0; c < animals.chickens; c++) {
     const ch = wander({ name: `chk${c}`, seed: 11 + c * 5, minX: roamMin, maxX: roamMax, y: floorY, speed: 22, pause: [0.6, 2.2], minDuration: 14 + c * 3 });
-    animalCss.push(ch.css);
+    extraCss.push(ch.css);
     const delay = `animation-delay:-${(c * 0.45).toFixed(2)}s`;
     pasture.push(`<g style="animation:chk${c} ${ch.duration.toFixed(2)}s linear infinite"><use href="#chickenA" class="pa" style="${delay}"/><use href="#chickenB" class="pb" style="${delay}"/></g>`);
   }
 
+  // --- Season decoration -------------------------------------------------------
+  let ground = "";
+  for (let k = 0; k < 40; k++) {
+    const tx = Math.floor(hash(k * 7 + 1) * (width - 8)) + 4;
+    const ty = hash(k * 13 + 5) < 0.5
+      ? Math.floor(hash(k * 3 + 2) * 10) + 4
+      : height - Math.floor(hash(k * 5 + 9) * 12) - 8;
+    ground += `<rect x="${tx}" y="${ty}" width="2" height="4" fill="${theme.tuft}"/><rect x="${tx + 2}" y="${ty + 2}" width="2" height="2" fill="${theme.tuft}"/>`;
+  }
+  if (theme.flowers) {
+    for (let k = 0; k < 28; k++) {
+      const fxp = Math.floor(hash(k * 11 + 4) * (width - 20)) + 10;
+      const top = hash(k * 19 + 2) < 0.4;
+      const fyp = top ? Math.floor(hash(k * 23 + 1) * 6) + 4 : height - Math.floor(hash(k * 29 + 6) * 10) - 10;
+      ground += `<use href="#flower${k % 3}" x="${fxp}" y="${fyp}"/>`;
+    }
+  }
+
+  let particles = "";
+  if (theme.particles) {
+    const snow = theme.particles === "snow";
+    const count = snow ? 46 : 18;
+    for (let k = 0; k < count; k++) {
+      const px = Math.floor(hash(k * 41 + 9) * width);
+      const dur = (snow ? 9 : 11) + hash(k * 43 + 1) * 6;
+      const delay = -(hash(k * 47 + 3) * dur);
+      const color = snow ? "#ffffff" : ["#d9822b", "#c4512b", "#e8b13a"][k % 3];
+      const size = snow ? (k % 4 === 0 ? 3 : 2) : 3;
+      particles += `<rect x="${px}" y="-6" width="${size}" height="${size - (snow ? 0 : 1)}" fill="${color}" class="${k % 2 ? "fallA" : "fallB"}" style="animation-duration:${dur.toFixed(1)}s;animation-delay:${delay.toFixed(1)}s"/>`;
+    }
+    extraCss.push(`.fallA,.fallB{animation-timing-function:linear;animation-iteration-count:infinite}
+.fallA{animation-name:fallA}.fallB{animation-name:fallB}
+@keyframes fallA{0%{transform:translate(0,0)}50%{transform:translate(14px,${height / 2}px)}100%{transform:translate(0,${height + 12}px)}}
+@keyframes fallB{0%{transform:translate(0,0)}50%{transform:translate(-14px,${height / 2}px)}100%{transform:translate(0,${height + 12}px)}}`);
+  }
+
+  // --- Weather: drifting cloud shadows and the occasional shower -------------
+  let weatherLayer = "";
+  if (weather) {
+    const cloud = (s) => `<g opacity=".13" fill="#0b1d0b">` +
+      `<rect x="${12 * s}" y="0" width="${44 * s}" height="${10 * s}"/>` +
+      `<rect x="0" y="${8 * s}" width="${80 * s}" height="${14 * s}"/>` +
+      `<rect x="${8 * s}" y="${20 * s}" width="${60 * s}" height="${8 * s}"/></g>`;
+    weatherLayer += `<g class="cloudA">${cloud(1.6)}</g><g class="cloudB">${cloud(1.1)}</g>`;
+    extraCss.push(`.cloudA{animation:drift ${WEATHER_CYCLE}s linear infinite}
+.cloudB{animation:drift ${WEATHER_CYCLE * 1.4}s linear infinite;animation-delay:-${(WEATHER_CYCLE * 0.8).toFixed(1)}s}
+@keyframes drift{0%{transform:translate(-160px,${GRID_TOP + 6}px)}100%{transform:translate(${width + 40}px,${GRID_TOP + 40}px)}}`);
+
+    if (theme.rainShare > 0) {
+      let drops = "";
+      for (let k = 0; k < 70; k++) {
+        const px = Math.floor(hash(k * 61 + 5) * width);
+        const delay = -(hash(k * 67 + 2) * 0.8);
+        drops += `<rect x="${px}" y="-10" width="1.5" height="6" fill="#a9dcff" class="drop" style="animation-delay:${delay.toFixed(2)}s"/>`;
+      }
+      const share = theme.rainShare;
+      weatherLayer += `<g class="shower">${drops}</g>`;
+      extraCss.push(`.shower{animation:shower ${WEATHER_CYCLE}s step-end infinite;opacity:0}
+@keyframes shower{0%{opacity:0}${(50 - share * 50).toFixed(1)}%{opacity:.75}${(50 + share * 50).toFixed(1)}%{opacity:0}}
+.drop{animation:drop .8s linear infinite}
+@keyframes drop{0%{transform:translate(0,0)}100%{transform:translate(-8px,${height + 20}px)}}`);
+    }
+  }
+
+  // --- Night: dark sky, moon, stars and fireflies ------------------------------
+  let nightLayer = "";
+  if (night) {
+    nightLayer += `<rect width="${width}" height="${height}" rx="10" fill="#0a1638" opacity=".45"/>`;
+    const moonX = Math.round(width * 0.62);
+    nightLayer += `<g fill="#fff4c2"><rect x="${moonX + 4}" y="12" width="12" height="20"/><rect x="${moonX}" y="16" width="20" height="12"/><rect x="${moonX + 2}" y="14" width="16" height="16"/></g>` +
+      `<g fill="#0a1638" opacity=".55"><rect x="${moonX + 10}" y="14" width="8" height="8"/></g>`;
+    for (let k = 0; k < 14; k++) {
+      const sx = Math.floor(hash(k * 71 + 3) * (width * 0.5)) + Math.floor(width * 0.4);
+      const sy = Math.floor(hash(k * 73 + 7) * 50) + 6;
+      nightLayer += `<rect x="${sx}" y="${sy}" width="2" height="2" fill="#ffffff" class="tw" style="animation-delay:-${(hash(k) * 2).toFixed(2)}s"/>`;
+    }
+    for (let k = 0; k < 22; k++) {
+      const fx2 = Math.floor(hash(k * 79 + 1) * gridW) + MARGIN_X;
+      const fy2 = Math.floor(hash(k * 83 + 5) * (height - GRID_TOP - 20)) + GRID_TOP;
+      nightLayer += `<g class="fly" style="animation-delay:-${(hash(k * 89) * 6).toFixed(2)}s"><rect x="${fx2}" y="${fy2}" width="2" height="2" fill="#e9ff8a" class="tw" style="animation-delay:-${(hash(k * 97) * 1.6).toFixed(2)}s"/></g>`;
+    }
+    extraCss.push(".fly{animation:fly 6s ease-in-out infinite}@keyframes fly{0%,100%{transform:translate(0,0)}33%{transform:translate(6px,-4px)}66%{transform:translate(-4px,3px)}}");
+  }
+
   // --- Header ----------------------------------------------------------------
   const title = `${user}'s farm`;
-  const cropLabel = language ? `${cropSprites.name} (${language})` : cropSprites.name;
+  const cropNames = crops.map((c) => (c.language ? `${CROPS[c.crop].name} (${c.language})` : CROPS[c.crop].name));
+  const cropLabel = cropNames.length > 1 ? `${cropNames.slice(0, -1).join(", ")} & ${cropNames.at(-1)}` : cropNames[0];
   const subtitle = `${plural(total, "contribution")} in the last year · growing ${cropLabel}`;
   const statsLine = `current streak: ${plural(stats.currentStreak, "day")}` +
     (stats.bestDay ? ` · best day: ${shortDate(stats.bestDay.date)} (${stats.bestDay.count})` : "");
   const signW = Math.max(title.length * 9.2, subtitle.length * 6.7, statsLine.length * 6.7) + 24;
 
   // Legend (right side of header)
-  const legendItems = ["soil", "sprout", "small", "grown", "harvest"];
+  const legendItems = ["soil", "sprout", "small", `grown-${mainCrop}`, `harvest-${mainCrop}`];
   const legendW = legendItems.length * PITCH - GAP;
   const legendX = width - MARGIN_X - legendW - 34;
   const legendY = 22;
@@ -338,30 +490,22 @@ export function renderFarm({ user, total, weeks, crop = "wheat", language, strea
     return s;
   };
 
-  // A few grass tufts in the margins for texture
-  let tufts = "";
-  for (let k = 0; k < 40; k++) {
-    const tx = Math.floor(hash(k * 7 + 1) * (width - 8)) + 4;
-    const ty = hash(k * 13 + 5) < 0.5
-      ? Math.floor(hash(k * 3 + 2) * 10) + 4
-      : height - Math.floor(hash(k * 5 + 9) * 12) - 8;
-    tufts += `<rect x="${tx}" y="${ty}" width="2" height="4" fill="#5c9d47"/><rect x="${tx + 2}" y="${ty + 2}" width="2" height="2" fill="#5c9d47"/>`;
-  }
-
   // --- Sprites -----------------------------------------------------------------
   def("grass", TILE_GRASS);
   def("soil", TILE_SOIL);
   def("sprout", SPROUT);
   def("small", SMALL);
-  def("grown", cropSprites.grown);
-  def("harvest", cropSprites.harvest);
+  for (const { crop: c } of crops) {
+    def(`grown-${c}`, CROPS[c].grown);
+    def(`harvest-${c}`, CROPS[c].harvest);
+  }
   def("weed", WEED);
   def("sparkle", SPARKLE);
   def("farmerA", FARMER_A);
   def("farmerB", FARMER_B);
-  def("hay", HAY);
   def("dogA", DOG_A);
   def("dogB", DOG_B);
+  def("hay", HAY);
   footDef("chickenA", CHICKEN_A);
   footDef("chickenB", CHICKEN_B);
   footDef("cowA", COW_A);
@@ -370,6 +514,24 @@ export function renderFarm({ user, total, weeks, crop = "wheat", language, strea
   footDef("shack", SHACK);
   footDef("barn", BARN);
   footDef("silo", SILO);
+  if (waterWindows.length) { def("farmerW", FARMER_WATER); def("drops", DROPS); }
+  if (theme.puddles) def("puddle", PUDDLE);
+  if (theme.flowers) {
+    ["#f29cc1", "#ffffff", "#b99cf2"].forEach((color, k) => def(`flower${k}`, FLOWER, { ...pal, f: color }));
+  }
+
+  // While watering, the walking sprites hide and the watering one shows.
+  const farmerSprites = waterWindows.length
+    ? `<g class="walking"><use href="#farmerA" class="fa"/><use href="#farmerB" class="fb"/></g><use href="#farmerW" class="watering"/>`
+    : `<use href="#farmerA" class="fa"/><use href="#farmerB" class="fb"/>`;
+  if (waterWindows.length) {
+    extraCss.push(
+      `.walking{animation:walking ${T.toFixed(2)}s step-end infinite}.watering{opacity:0;animation:watering ${T.toFixed(2)}s step-end infinite}`,
+      windowsKeyframes("walking", waterWindows, T, false),
+      windowsKeyframes("watering", waterWindows, T, true),
+      ".drip{animation:drip .3s linear infinite}@keyframes drip{0%{transform:translate(0,0)}100%{transform:translate(0,6px)}}",
+    );
+  }
 
   const css = `
 .a{opacity:0;animation-duration:${T.toFixed(2)}s;animation-iteration-count:infinite;animation-timing-function:step-end}
@@ -385,7 +547,6 @@ ${dogMoves ? `@keyframes dogrun{${dogMoves}}` : ""}
 @keyframes pkB{0%{opacity:0}70%{opacity:1}}
 .ga{animation:pkA 3.4s step-end infinite}
 .gb{animation:pkB 3.4s step-end infinite}
-${animalCss.join("\n")}
 .fa{animation:legA .32s step-end infinite}
 .fb{animation:legB .32s step-end infinite}
 @keyframes legA{0%{opacity:1}50%{opacity:0}}
@@ -397,7 +558,8 @@ ${animalCss.join("\n")}
 .t3{font:bold 10px ${FONT};fill:#fff3d1}
 .t4{font:bold 8px ${FONT};fill:#fff3d1}
 .ct{font:bold 12px ${FONT};fill:#2b1d14}
-.lg{font:bold 11px ${FONT};fill:#e9f5d8}
+.lg{font:bold 11px ${FONT};fill:${night ? "#e9f5d8" : theme.legend}}
+${extraCss.join("\n")}
 ${[...keyframes.values()].join("\n")}`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" shape-rendering="crispEdges" role="img" aria-label="${escapeXml(`${title}: ${subtitle}. ${statsLine}`)}">
@@ -406,8 +568,21 @@ ${[...keyframes.values()].join("\n")}`;
 <defs>
 ${defs.join("\n")}
 </defs>
-<rect width="${width}" height="${height}" rx="10" fill="#3d7530"/>
-${tufts}
+<rect width="${width}" height="${height}" rx="10" fill="${theme.bg}"/>
+${ground}
+${fence(GRID_TOP - 12)}
+${fence(fenceBottom)}
+<g>${base.join("")}</g>
+<g class="field">
+${field.join("\n")}
+${scarecrow}
+${animals.dog ? `<g class="dog"><use href="#dogA" class="fa"/><use href="#dogB" class="fb"/></g>` : ""}
+<g class="farmer">${farmerSprites}</g>
+</g>
+${pasture.join("\n")}
+${weatherLayer}
+${particles}
+${nightLayer}
 <rect x="12" y="10" width="${signW.toFixed(0)}" height="54" rx="3" fill="#5e3820"/>
 <rect x="14" y="12" width="${(signW - 4).toFixed(0)}" height="50" rx="2" fill="#9a6338"/>
 <rect x="14" y="12" width="${(signW - 4).toFixed(0)}" height="2" fill="#b77c4a"/>
@@ -415,19 +590,9 @@ ${tufts}
 <text x="24" y="43" class="t2">${escapeXml(subtitle)}</text>
 <text x="24" y="56" class="t2">${escapeXml(statsLine)}</text>
 ${legend}
-${fence(GRID_TOP - 12)}
-${fence(fenceBottom)}
 <rect x="12" y="${fenceBottom + 16}" width="${pastureSignW.toFixed(0)}" height="20" rx="2" fill="#5e3820"/>
 <rect x="14" y="${fenceBottom + 18}" width="${(pastureSignW - 4).toFixed(0)}" height="16" rx="1" fill="#9a6338"/>
 <text x="22" y="${fenceBottom + 30}" class="t3">${escapeXml(pastureText)}</text>
-${pasture.join("\n")}
-<g>${base.join("")}</g>
-<g class="field">
-${crops.join("\n")}
-${scarecrow}
-${animals.dog ? `<g class="dog"><use href="#dogA" class="fa"/><use href="#dogB" class="fb"/></g>` : ""}
-<g class="farmer"><use href="#farmerA" class="fa"/><use href="#farmerB" class="fb"/></g>
-${counter}
-</g>
+<g class="field">${counter}</g>
 </svg>`;
 }

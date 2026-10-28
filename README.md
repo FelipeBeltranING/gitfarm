@@ -20,7 +20,8 @@ and plants a crop wherever you committed. The more you code, the bigger the harv
 | Many | A fully grown crop |
 | Your best days | Harvest-ready, with a little sparkle ✨ |
 
-The crop depends on your most-used language:
+Your crops depend on the languages you use. If you code in several, your field mixes up to 3 crops
+in proportion (languages under 15% are left out):
 
 | Language | Crop |
 | --- | --- |
@@ -30,7 +31,7 @@ The crop depends on your most-used language:
 | C, C++, C#, Java, Kotlin, Swift | ☕ Coffee |
 | Everything else | 🌾 Wheat |
 
-Don't like your crop? Pick one with `crop: tomato`.
+Don't like your crops? Pick them yourself with `crop: tomato` or `crop: corn,coffee`.
 
 ## Animals 🐔🐄🐕
 
@@ -58,6 +59,27 @@ Longest streak, not current: breaking your streak never takes your animals away.
   | 1,000+ | A red barn with a silo |
 
 - 🧺 **Harvest counter:** when the farmer finishes, a speech bubble counts up your contributions.
+- 🚿 **Watering:** the farmer stops on your 12 best days and waters them.
+
+## Seasons, weather and time of day
+
+| Option | Values | What you get |
+| --- | --- | --- |
+| `season` | `none` (default), `spring`, `summer`, `autumn`, `winter`, `rainy`, `dry` | Spring flowers, falling autumn leaves, snow, puddles in the rainy season, a yellow dry season |
+| | `auto` / `auto-south` | Follows the calendar in the northern / southern hemisphere |
+| `time` | `auto` (default), `day`, `night` | Night owls (40%+ of activity between 20:00 and 05:00) get a night farm with a moon and fireflies |
+| `timezone` | `UTC` (default) or any IANA zone, e.g. `America/Bogota` | Used by `time: auto` |
+| `weather` | `true` (default) / `false` | Cloud shadows drifting over the field and the occasional shower |
+
+Living in the tropics? `rainy` and `dry` are made for you 🌴
+
+## Dress your farmer
+
+```yaml
+farmer_hat: "#efc96d"
+farmer_shirt: "#d9473b"
+farmer_overalls: "#3d72bd"
+```
 
 ## Plant your own farm (2 minutes)
 
@@ -84,7 +106,10 @@ jobs:
         with:
           github_user_name: ${{ github.repository_owner }}
           output: dist/farm.svg
-          # crop: auto   # or corn, sunflower, tomato, coffee, wheat
+          # crop: auto            # or corn, sunflower, tomato, coffee, wheat (comma separated)
+          # season: auto          # or none, spring, summer, autumn, winter, rainy, dry, auto-south
+          # time: auto            # or day, night
+          # timezone: America/Bogota
 
       - uses: crazy-max/ghaction-github-pages@v4
         with:
@@ -111,7 +136,12 @@ That's it. Your farm replants itself every day.
 | `github_user_name` | repo owner | Whose contributions grow on the farm |
 | `github_token` | `github.token` | Used to read the contribution calendar |
 | `output` | `dist/farm.svg` | Where the SVG is written |
-| `crop` | `auto` | `auto`, `corn`, `sunflower`, `tomato`, `coffee` or `wheat` |
+| `crop` | `auto` | `auto` (mix of your languages) or a comma-separated list: `corn`, `sunflower`, `tomato`, `coffee`, `wheat` |
+| `season` | `none` | `none`, `spring`, `summer`, `autumn`, `winter`, `rainy`, `dry`, `auto`, `auto-south` |
+| `time` | `auto` | `auto`, `day` or `night` |
+| `timezone` | `UTC` | IANA time zone used by `time: auto` |
+| `weather` | `true` | Clouds and showers |
+| `farmer_hat` / `farmer_shirt` / `farmer_overalls` | classic farmer | Hex colors |
 
 ## Run it locally
 
@@ -121,6 +151,8 @@ No dependencies, just Node 20+:
 node src/cli.js --user your-username --out farm.svg          # real data (token optional: --token or GITHUB_TOKEN)
 node src/cli.js --demo --user octocat --crop corn --out demo.svg  # fake data, no network
 node src/cli.js --demo --user octocat --streak 100 --out demo.svg # preview all animals
+node src/cli.js --demo --season winter --time night --out demo.svg # try a theme
+node src/cli.js --help                                             # all options
 ```
 
 ## Contributing
@@ -141,9 +173,7 @@ and the whole field fades and replants in a loop.
 
 ## Ideas / roadmap
 
-- 🌙 Day/night cycle based on when you usually commit
-- 🍂 Seasons that follow the calendar
-- 🎨 More crops (PRs with new sprites are very welcome!)
+See the [issues](../../issues) for what's planned next. More crops and animals are always welcome!
 
 ## License
 
