@@ -1,0 +1,12 @@
+{
+  "name": "gitfarm",
+  "version": "0.1.0",
+  "description": "Turn your GitHub contribution graph into a pixel-art farm with a little farmer planting your commits.",
+  "type": "module",
+  "bin": { "gitfarm": "src/cli.js" },
+  "scripts": {
+    "demo": "node src/cli.js --demo --user octocat --out examples/demo.svg"
+  },
+  "engines": { "node": ">=20" },
+  "license": "MIT"
+}

@@ -1,0 +1,26 @@
+name: "GitFarm"
+description: "Turn your contribution graph into a pixel-art farm where a little farmer plants your commits."
+author: "David Felipe Beltrán Tabares"
+branding:
+  icon: "sun"
+  color: "green"
+inputs:
+  github_user_name:
+    description: "GitHub username whose contributions grow on the farm."
+    required: false
+    default: ${{ github.repository_owner }}
+  github_token:
+    description: "Token used to read the contribution calendar."
+    required: false
+    default: ${{ github.token }}
+  output:
+    description: "Where to write the SVG."
+    required: false
+    default: "dist/farm.svg"
+  crop:
+    description: "auto (picked from your top language), corn, sunflower, tomato, coffee or wheat."
+    required: false
+    default: "auto"
+runs:
+  using: "node24"
+  main: "src/action.js"

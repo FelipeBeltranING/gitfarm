@@ -1,0 +1,28 @@
+# Save as .github/workflows/farm.yml in your profile repo (username/username)
+name: Plant my farm
+
+on:
+  schedule:
+    - cron: "17 3 * * *" # every day
+  workflow_dispatch:      # run it by hand from the Actions tab
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  farm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: YOUR_GITHUB_USER/gitfarm@v1
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          output: dist/farm.svg
+
+      - uses: crazy-max/ghaction-github-pages@v4
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
