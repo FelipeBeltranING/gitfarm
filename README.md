@@ -32,6 +32,19 @@ The crop depends on your most-used language:
 
 Don't like your crop? Pick one with `crop: tomato`.
 
+## Animals 🐔🐄🐕
+
+Your **longest streak of the year** unlocks animals. They live in the pasture below the field,
+and a little sign tells you how many days you need for the next one.
+
+| Best streak | Unlocks |
+| --- | --- |
+| 7 days | 🐔 A chicken (one more every 7 days, up to 3) |
+| 30 days | 🐄 A cow |
+| 100 days | 🐕 A dog that follows the farmer around |
+
+Longest streak, not current: breaking your streak never takes your animals away.
+
 ## Plant your own farm (2 minutes)
 
 **1.** In your profile repo (`your-username/your-username`), create `.github/workflows/farm.yml`:
@@ -53,7 +66,7 @@ jobs:
   farm:
     runs-on: ubuntu-latest
     steps:
-      - uses: FelipeBeltranING/gitfarm@v1
+      - uses: YOUR_GITHUB_USER/gitfarm@v1
         with:
           github_user_name: ${{ github.repository_owner }}
           output: dist/farm.svg
@@ -93,6 +106,7 @@ No dependencies, just Node 20+:
 ```bash
 node src/cli.js --user your-username --out farm.svg          # real data (token optional: --token or GITHUB_TOKEN)
 node src/cli.js --demo --user octocat --crop corn --out demo.svg  # fake data, no network
+node src/cli.js --demo --user octocat --streak 100 --out demo.svg # preview all animals
 ```
 
 ## How it works
@@ -105,7 +119,6 @@ and the whole field fades and replants in a loop.
 
 - 🌙 Day/night cycle based on when you usually commit
 - 🍂 Seasons that follow the calendar
-- 🐔 Animals that unlock with streaks
 - 🎨 More crops (PRs with new sprites are very welcome!)
 
 ## License

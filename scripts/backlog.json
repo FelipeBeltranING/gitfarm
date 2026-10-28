@@ -1,0 +1,94 @@
+{
+  "labels": [
+    { "name": "iteration-2", "color": "f6cf4f", "description": "Iteration 2: more game on the farm" },
+    { "name": "iteration-3", "color": "74c95c", "description": "Iteration 3: weather, seasons and life" },
+    { "name": "iteration-4", "color": "3d72bd", "description": "Iteration 4: reach and distribution" },
+    { "name": "pixel-art", "color": "e5483a", "description": "Needs new sprites (no deep JS knowledge required)" },
+    { "name": "customization", "color": "c99a3e", "description": "New inputs/options for users" },
+    { "name": "good first issue", "color": "7057ff", "description": "Good for newcomers" },
+    { "name": "help wanted", "color": "008672", "description": "Extra attention is needed" },
+    { "name": "enhancement", "color": "a2eeef", "description": "New feature or request" }
+  ],
+  "issues": [
+    {
+      "title": "🐔 Animals that unlock with contribution streaks",
+      "labels": ["enhancement", "pixel-art", "iteration-2", "help wanted"],
+      "body": "## Idea\nReward streaks with farm animals that wander around the field:\n\n| Streak | Unlocks |\n| --- | --- |\n| 7 days | 🐔 Chicken |\n| 30 days | 🐄 Cow |\n| 100 days | 🐕 Dog that follows the farmer |\n\nThe longest streak of the year decides which animals live on the farm.\n\n## Where to start\n- Compute the longest streak from `weeks` (same data the renderer already receives).\n- Add sprites to `src/sprites.js` (8×8 or 12×12, same palette system).\n- Animate them in `src/render.js` with CSS keyframes only (no JS: GitHub strips scripts from SVGs). A simple back-and-forth walk along the fence is enough for a first version.\n\n## Done when\n- [ ] Streak calculation with a small test\n- [ ] At least the chicken sprite + idle/walk animation\n- [ ] Animals appear only if the streak threshold is met\n- [ ] README table updated"
+    },
+    {
+      "title": "🎃 Scarecrow on your best day",
+      "labels": ["enhancement", "pixel-art", "iteration-2", "good first issue"],
+      "body": "## Idea\nPlace a scarecrow on the plot of the day with the most contributions, with a tiny sign like `best day: 23`.\n\n## Where to start\n- Find the max `count` in `weeks`.\n- Draw a scarecrow sprite in `src/sprites.js`.\n- In `src/render.js`, render it on top of that plot once the farmer has passed it (reuse the `on(t)` keyframe helper).\n\n## Done when\n- [ ] Scarecrow appears on the correct day\n- [ ] Small label with the count\n- [ ] Looks good with the 5 existing crops"
+    },
+    {
+      "title": "🏠 Barn that grows with your yearly contributions",
+      "labels": ["enhancement", "pixel-art", "iteration-2", "help wanted"],
+      "body": "## Idea\nA building next to the field that upgrades with your total contributions in the last year:\n\n- < 100 → small shack\n- 100–999 → red barn\n- 1000+ → barn with silo\n\n## Where to start\n- The total is already passed to `renderFarm` as `total`.\n- The header area or the right margin of the field has room for it; the SVG width can grow a bit if needed.\n\n## Done when\n- [ ] 3 sprites (one per tier)\n- [ ] Tier chosen from `total`\n- [ ] Layout still fits GitHub's README width"
+    },
+    {
+      "title": "📋 Stats on the wooden sign: longest streak and best day",
+      "labels": ["enhancement", "iteration-2", "good first issue"],
+      "body": "## Idea\nThe sign currently shows the username, total contributions and crop. Add a second line of stats, for example:\n\n`🔥 longest streak: 12 days · ⭐ best day: Mar 14 (23)`\n\n## Where to start\n- `src/render.js`, look for `subtitle`.\n- Keep the sign width calculation (`signW`) in sync so text doesn't overflow.\n\n## Done when\n- [ ] Longest streak and best day computed from `weeks`\n- [ ] Sign grows to fit, no overlap with the legend"
+    },
+    {
+      "title": "🧺 Harvest counter at the end of the loop",
+      "labels": ["enhancement", "iteration-2"],
+      "body": "## Idea\nWhen the farmer finishes walking the field, show a counter that ticks up like in farming games: `+799 🌻`.\n\n## Where to start\n- Timeline constants live at the top of `src/render.js` (`EXIT`, `HOLD`, `FADE`).\n- CSS can't animate text content, so a counter can be faked with stacked `<text>` elements that appear one after another, or with a single pop-in + scale animation.\n\n## Done when\n- [ ] Counter appears during the HOLD phase\n- [ ] Fades out with the rest of the field"
+    },
+    {
+      "title": "🚿 Farmer waters the plants on harvest days",
+      "labels": ["enhancement", "pixel-art", "iteration-3"],
+      "body": "## Idea\nWhen the farmer reaches a level-4 day, he pauses for a moment with a watering can and a few droplets fall.\n\n## Where to start\n- Farmer movement keyframes are built in `src/render.js` (`moves`). A pause means adding an extra keyframe at the same position and shifting the timeline.\n- New sprites: watering can frame for the farmer, 2–3 droplet pixels.\n\n## Done when\n- [ ] Watering frame + droplets\n- [ ] Timeline still loops cleanly"
+    },
+    {
+      "title": "🍂 Seasons (including tropical rainy/dry seasons)",
+      "labels": ["enhancement", "pixel-art", "customization", "iteration-3"],
+      "body": "## Idea\nThe farm changes with the date it was generated:\n\n- Temperate: spring flowers, summer, autumn leaves, winter snow\n- Tropical: rainy season (puddles, greener grass) and dry season (yellowish grass)\n\nNew input: `season: auto | spring | summer | autumn | winter | rainy | dry | none`.\n\n## Where to start\n- Ground colors are in `PALETTE` (`src/sprites.js`); seasons could be palette overrides.\n- `auto` needs a hemisphere or climate hint. Maybe `auto` = temperate north by default, and users pick the rest.\n\n## Done when\n- [ ] At least 2 seasons implemented\n- [ ] `season` input in `action.yml` and CLI flag\n- [ ] Docs in README"
+    },
+    {
+      "title": "🌙 Day/night cycle based on when you usually code",
+      "labels": ["enhancement", "iteration-3", "help wanted"],
+      "body": "## Idea\nNight owls get a night farm (dark sky, moon, fireflies); early birds get a sunrise.\n\n## Open question\nThe contribution calendar doesn't include times. Options:\n- GraphQL `commitContributionsByRepository` → commit timestamps (needs more API calls)\n- Public events API (only ~90 days)\n\nDiscussion welcome before implementing!\n\n## Done when\n- [ ] Approach agreed in this issue\n- [ ] Night palette + fireflies animation\n- [ ] Graceful fallback to day when data is missing"
+    },
+    {
+      "title": "☁️ Passing weather: cloud shadows and light rain",
+      "labels": ["enhancement", "iteration-3", "good first issue"],
+      "body": "## Idea\nSoft cloud shadows drifting across the field, and occasionally a short light rain.\n\n## Where to start\n- Pure CSS: a semi-transparent dark shape with a long `translateX` animation over the field group in `src/render.js`.\n- Rain: a few 1×3 px rects falling with staggered delays.\n\n## Done when\n- [ ] Cloud shadows look subtle (shouldn't hide the crops)\n- [ ] Optional `weather: true|false` input"
+    },
+    {
+      "title": "🧑‍🌾 Customizable farmer colors",
+      "labels": ["enhancement", "customization", "iteration-3", "good first issue"],
+      "body": "## Idea\nLet people dress their farmer:\n\n```yaml\nfarmer_hat: \"#efc96d\"\nfarmer_shirt: \"#d9473b\"\nfarmer_overalls: \"#3d72bd\"\n```\n\nStretch goal: pick the colors automatically from the dominant colors of the user's GitHub avatar.\n\n## Where to start\n- Farmer colors are the `H/h`, `P/p`, `U/u` entries in `PALETTE` (`src/sprites.js`). `spriteRects` already accepts a custom palette.\n\n## Done when\n- [ ] Inputs in `action.yml` + CLI flags\n- [ ] Colors validated (hex)\n- [ ] README example"
+    },
+    {
+      "title": "🌽🍅 Mixed crops from your top languages",
+      "labels": ["enhancement", "iteration-3", "help wanted"],
+      "body": "## Idea\nIf you use several languages, plant several crops in proportion: 60% Python → corn, 40% TypeScript → sunflowers.\n\n## Where to start\n- `fetchTopLanguage` in `src/github.js` already builds a tally; return the top 3 with shares.\n- In `src/render.js`, choose the crop per plot deterministically (e.g. with the existing `hash()` helper) so the farm doesn't change on every run.\n\n## Done when\n- [ ] Up to 3 crops mixed by share\n- [ ] `crop` input still forces a single crop\n- [ ] Sign shows the mix"
+    },
+    {
+      "title": "🌐 Web generator: type a username, see the farm",
+      "labels": ["enhancement", "iteration-4", "help wanted"],
+      "body": "## Idea\nA small site where anyone types their username and instantly sees their farm, plus an embeddable URL:\n\n```md\n![farm](https://gitfarm.vercel.app/api/farm?user=octocat)\n```\n\nThis removes the \"set up a workflow\" step and is what makes tools like github-readme-stats spread.\n\n## Where to start\n- `generate()` in `src/generate.js` already does everything; it needs a serverless wrapper (Vercel/Netlify) that returns the SVG.\n- Needs a server-side token and caching (`Cache-Control`) to stay within API limits.\n\n## Done when\n- [ ] `/api/farm?user=&crop=` endpoint\n- [ ] Landing page with input + preview + copy-paste snippet\n- [ ] Caching"
+    },
+    {
+      "title": "🎞️ Export the farm as GIF/MP4 for sharing",
+      "labels": ["enhancement", "iteration-4"],
+      "body": "## Idea\nA `--gif` / `--mp4` option that records the animation, so people can share their farm on social media where SVGs don't play.\n\n## Where to start\n- Render frames with a headless browser (Playwright/Puppeteer) by pausing `document.getAnimations()` at each timestamp, then stitch with ffmpeg.\n- Keep it as an optional dev dependency so the Action stays dependency-free.\n\n## Done when\n- [ ] Script that outputs a looping GIF/MP4\n- [ ] Documented in README"
+    },
+    {
+      "title": "🏪 Publish v1 to the GitHub Marketplace",
+      "labels": ["iteration-4"],
+      "body": "## Tasks\n- [ ] Make sure `action.yml` metadata (name, description, branding) is final\n- [ ] Create release `v1.0.0` and move the `v1` tag\n- [ ] Tick \"Publish this Action to the GitHub Marketplace\" on the release\n- [ ] Add topics to the repo (`github-actions`, `readme`, `profile-readme`, `pixel-art`, `contribution-graph`)"
+    },
+    {
+      "title": "🌱 Add your crop! (sprite contribution guide)",
+      "labels": ["pixel-art", "iteration-4", "good first issue", "help wanted"],
+      "body": "## Idea\nCrops are the easiest way to contribute: no deep JS needed, just pixel art.\n\nEach crop is two 8×8 grids in `src/sprites.js` (`grown` and `harvest`), where each character is a palette color and `.` is transparent:\n\n```js\nharvest: [\n  \"..w.w...\",\n  \"...wL...\",\n  \".lLDYy..\",\n  // ...\n],\n```\n\n## To add a crop\n1. Add `grown` and `harvest` sprites to `CROPS` in `src/sprites.js` (add palette colors if needed).\n2. Map languages to it in `src/crops.js` and add it to `CROP_NAMES`.\n3. Run `node src/cli.js --demo --crop yourcrop --out demo.svg` and attach a screenshot to your PR.\n\n## Wanted crops\n- [ ] 🍓 Strawberry\n- [ ] 🎃 Pumpkin\n- [ ] 🍫 Cacao\n- [ ] 🥕 Carrot\n- [ ] 🍚 Rice\n\nComment which one you're taking so nobody duplicates work!"
+    },
+    {
+      "title": "🧪 Tests for the calendar parser and renderer",
+      "labels": ["iteration-2", "good first issue"],
+      "body": "## Idea\nAdd tests with the built-in `node:test` runner (no dependencies):\n\n- Scraper: parse a saved snippet of GitHub's contributions HTML (`src/github.js` → `scrapeCalendar`).\n- Levels: `withLevels` in `src/demo.js` maps counts to 0–4 correctly.\n- Renderer: `renderFarm` returns a valid SVG with one plot per day and the expected keyframes.\n\n## Done when\n- [ ] `npm test` runs `node --test`\n- [ ] A GitHub workflow runs tests on PRs"
+    }
+  ]
+}

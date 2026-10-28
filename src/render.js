@@ -1,7 +1,9 @@
 import {
   PIXEL, PALETTE, FARMER_A, FARMER_B, TILE_GRASS, TILE_SOIL,
   SPROUT, SMALL, WEED, SPARKLE, CROPS,
+  CHICKEN_A, CHICKEN_B, COW_A, COW_B, DOG_A, DOG_B, HAY,
 } from "./sprites.js";
+import { computeStats, unlockedAnimals, nextUnlock } from "./stats.js";
 
 const CELL = 8 * PIXEL; // 16
 const GAP = 2;
@@ -9,6 +11,7 @@ const PITCH = CELL + GAP; // 18
 const MARGIN_X = 28;
 const GRID_TOP = 66;
 const BOTTOM = 30;
+const PASTURE = 26; // extra strip below the bottom fence where animals live
 
 // Animation timing (seconds)
 const START = 0.8; // farmer reaches the first plot
@@ -18,6 +21,7 @@ const GROWN_AFTER = 0.8;
 const EXIT = 1.0;
 const HOLD = 4.5;
 const FADE = 0.8;
+const DOG_LAG = 0.22; // how far behind the farmer the dog trots
 
 // ---------------------------------------------------------------------------
 // Sprite helpers
@@ -55,6 +59,46 @@ function hash(n) {
   return (x >>> 0) / 4294967296;
 }
 
+// A centered sprite whose origin is the middle of its feet, so it can be
+// flipped with scaleX(-1) without moving.
+const footDef = (id, rows) => {
+  const w = rows[0].length * PIXEL;
+  const h = rows.length * PIXEL;
+  return `<g id="${id}"><g transform="translate(${-w / 2},${-h})">${spriteRects(rows)}</g></g>`;
+};
+
+/**
+ * Random-but-stable wandering along a horizontal line: walk, pause, walk...
+ * and come back to the starting point so the loop is seamless.
+ * Returns CSS keyframes (translate + facing) and the loop duration.
+ */
+function wander({ name, seed, minX, maxX, y, speed, pause, minDuration }) {
+  const r = (() => { let k = 0; return () => hash(seed * 977 + k++); })();
+  const x0 = minX + r() * (maxX - minX);
+  const pts = [[0, x0, 1]];
+  let t = 0;
+  let x = x0;
+  let f = 1;
+  const moveTo = (nx) => {
+    const nf = nx >= x ? 1 : -1;
+    if (nf !== f) { t += 0.05; f = nf; pts.push([t, x, f]); }
+    t += Math.abs(nx - x) / speed;
+    x = nx;
+    pts.push([t, x, f]);
+  };
+  const rest = () => { t += pause[0] + r() * (pause[1] - pause[0]); pts.push([t, x, f]); };
+  while (t < minDuration) { rest(); moveTo(minX + r() * (maxX - minX)); }
+  rest();
+  moveTo(x0);
+  rest();
+  if (f !== 1) { t += 0.05; f = 1; pts.push([t, x, f]); }
+
+  const frames = pts
+    .map(([pt, px, pf]) => `${((pt / t) * 100).toFixed(3)}%{transform:translate(${px.toFixed(1)}px,${y}px) scaleX(${pf})}`)
+    .join("");
+  return { css: `@keyframes ${name}{${frames}}`, duration: t };
+}
+
 // ---------------------------------------------------------------------------
 
 /**
@@ -65,13 +109,16 @@ function hash(n) {
  * @param {string} opts.crop   key of CROPS
  * @param {string} [opts.language]
  */
-export function renderFarm({ user, total, weeks, crop = "wheat", language }) {
+export function renderFarm({ user, total, weeks, crop = "wheat", language, streak }) {
   const cropSprites = CROPS[crop] ?? CROPS.wheat;
+  const stats = computeStats(weeks);
+  const bestStreak = streak ?? stats.longestStreak;
+  const animals = unlockedAnimals(bestStreak);
   const W = weeks.length;
   const gridW = W * PITCH - GAP;
   const gridH = 7 * PITCH - GAP;
   const width = MARGIN_X * 2 + gridW;
-  const height = GRID_TOP + gridH + BOTTOM;
+  const height = GRID_TOP + gridH + BOTTOM + PASTURE;
 
   const cellX = (w) => MARGIN_X + w * PITCH;
   const cellY = (d) => GRID_TOP + d * PITCH;
@@ -142,14 +189,50 @@ export function renderFarm({ user, total, weeks, crop = "wheat", language }) {
   // Farmer movement keyframes: feet on the plot he is tilling.
   const fx = (w) => cellX(w) + CELL / 2 - 12;
   const fy = (d) => cellY(d) + CELL - 2 - 32;
-  const moves = [`0%{transform:translate(${MARGIN_X - 30}px,${fy(0)}px)}`];
-  path.forEach(([w, d], i) => {
-    moves.push(`${pct(START + i * STEP)}{transform:translate(${fx(w)}px,${fy(d)}px)}`);
-  });
-  const [lw, ld] = path[N - 1];
+  const [, ld] = path[N - 1];
   const exitX = width - MARGIN_X + 2 - 12;
-  moves.push(`${pct(walkEnd + EXIT)}{transform:translate(${exitX}px,${fy(ld)}px)}`);
-  moves.push(`100%{transform:translate(${exitX}px,${fy(ld)}px)}`);
+  const farmerPts = [
+    [0, MARGIN_X - 30, fy(0)],
+    ...path.map(([w, d], i) => [START + i * STEP, fx(w), fy(d)]),
+    [walkEnd + EXIT, exitX, fy(ld)],
+  ];
+  const toFrames = (pts) => pts
+    .map(([t, x, y]) => `${pct(t)}{transform:translate(${x}px,${y}px)}`)
+    .join("") + `100%{transform:translate(${pts.at(-1)[1]}px,${pts.at(-1)[2]}px)}`;
+  const moves = toFrames(farmerPts);
+
+  // The dog (100-day streak) trots behind the farmer, feet on the same plot.
+  // Farmer sprite is 24x32 and dog 20x14, both anchored by their feet.
+  const dogMoves = animals.dog
+    ? toFrames([
+      [0, MARGIN_X - 56, fy(0) + 18],
+      ...farmerPts.slice(1, -1).map(([t, x, y]) => [t + DOG_LAG, x + 2, y + 18]),
+      [walkEnd + EXIT + DOG_LAG, exitX - 18, fy(ld) + 18],
+    ])
+    : "";
+
+  // --- Pasture: animals unlocked by your best streak ------------------------
+  const fenceBottom = GRID_TOP + gridH + 6;
+  const floorY = fenceBottom + 34;
+  const hint = nextUnlock(bestStreak);
+  const pastureText = `best streak: ${bestStreak} day${bestStreak === 1 ? "" : "s"}` +
+    (hint ? ` · ${hint}` : " · all animals unlocked!");
+  const pastureSignW = pastureText.length * 6.7 + 20;
+  const roamMin = 12 + pastureSignW + 24;
+  const roamMax = width - MARGIN_X - 40;
+  const animalCss = [];
+  const pasture = [];
+  pasture.push(`<use href="#hay" x="${width - MARGIN_X - 22}" y="${floorY - 14}"/>`);
+  if (animals.cow) {
+    const cow = wander({ name: "cow", seed: 3, minX: roamMin, maxX: roamMax, y: floorY, speed: 6, pause: [3, 7], minDuration: 30 });
+    animalCss.push(cow.css);
+    pasture.push(`<g style="animation:cow ${cow.duration.toFixed(2)}s linear infinite"><g transform="scale(1.5)"><use href="#cowA" class="ga"/><use href="#cowB" class="gb"/></g></g>`);
+  }
+  for (let c = 0; c < animals.chickens; c++) {
+    const ch = wander({ name: `chk${c}`, seed: 11 + c * 5, minX: roamMin, maxX: roamMax, y: floorY, speed: 22, pause: [0.6, 2.2], minDuration: 14 + c * 3 });
+    animalCss.push(ch.css);
+    pasture.push(`<g style="animation:chk${c} ${ch.duration.toFixed(2)}s linear infinite"><use href="#chickenA" class="pa" style="animation-delay:-${(c * 0.45).toFixed(2)}s"/><use href="#chickenB" class="pb" style="animation-delay:-${(c * 0.45).toFixed(2)}s"/></g>`);
+  }
 
   // Header text
   const title = `${user}'s farm`;
@@ -198,7 +281,16 @@ export function renderFarm({ user, total, weeks, crop = "wheat", language }) {
 .field{animation:fade ${T.toFixed(2)}s linear infinite}
 @keyframes fade{0%{opacity:1}${pct(T - FADE)}{opacity:1}100%{opacity:0}}
 .farmer{animation:walk ${T.toFixed(2)}s linear infinite}
-@keyframes walk{${moves.join("")}}
+@keyframes walk{${moves}}
+.dog{animation:dogrun ${T.toFixed(2)}s linear infinite}
+${dogMoves ? `@keyframes dogrun{${dogMoves}}` : ""}
+.pa{animation:pkA 1.4s step-end infinite}
+.pb{animation:pkB 1.4s step-end infinite}
+@keyframes pkA{0%{opacity:1}70%{opacity:0}}
+@keyframes pkB{0%{opacity:0}70%{opacity:1}}
+.ga{animation:pkA 3.4s step-end infinite}
+.gb{animation:pkB 3.4s step-end infinite}
+${animalCss.join("\n")}
 .fa{animation:legA .32s step-end infinite}
 .fb{animation:legB .32s step-end infinite}
 @keyframes legA{0%{opacity:1}50%{opacity:0}}
@@ -207,6 +299,7 @@ export function renderFarm({ user, total, weeks, crop = "wheat", language }) {
 @keyframes tw{0%,100%{opacity:0}50%{opacity:1}}
 .t1{font:bold 15px 'Courier New',ui-monospace,monospace;fill:#fff3d1}
 .t2{font:bold 11px 'Courier New',ui-monospace,monospace;fill:#f3dfae}
+.t3{font:bold 10px 'Courier New',ui-monospace,monospace;fill:#fff3d1}
 .lg{font:bold 11px 'Courier New',ui-monospace,monospace;fill:#e9f5d8}
 ${[...keyframes.values()].join("\n")}`;
 
@@ -226,6 +319,13 @@ ${def("weed", WEED)}
 ${def("sparkle", SPARKLE)}
 ${def("farmerA", FARMER_A)}
 ${def("farmerB", FARMER_B)}
+${def("hay", HAY)}
+${footDef("chickenA", CHICKEN_A)}
+${footDef("chickenB", CHICKEN_B)}
+${footDef("cowA", COW_A)}
+${footDef("cowB", COW_B)}
+${def("dogA", DOG_A)}
+${def("dogB", DOG_B)}
 </defs>
 <rect width="${width}" height="${height}" rx="10" fill="#3d7530"/>
 ${tufts}
@@ -236,10 +336,15 @@ ${tufts}
 <text x="24" y="42" class="t2">${escapeXml(subtitle)}</text>
 ${legend}
 ${fence(GRID_TOP - 12)}
-${fence(GRID_TOP + gridH + 6)}
+${fence(fenceBottom)}
+<rect x="12" y="${fenceBottom + 16}" width="${pastureSignW.toFixed(0)}" height="20" rx="2" fill="#5e3820"/>
+<rect x="14" y="${fenceBottom + 18}" width="${(pastureSignW - 4).toFixed(0)}" height="16" rx="1" fill="#9a6338"/>
+<text x="22" y="${fenceBottom + 30}" class="t3">${escapeXml(pastureText)}</text>
+${pasture.join("\n")}
 <g>${base.join("")}</g>
 <g class="field">
 ${crops.join("\n")}
+${animals.dog ? `<g class="dog"><use href="#dogA" class="fa"/><use href="#dogB" class="fb"/></g>` : ""}
 <g class="farmer"><use href="#farmerA" class="fa"/><use href="#farmerB" class="fb"/></g>
 </g>
 </svg>`;

@@ -24,6 +24,10 @@ export const PALETTE = {
   W: "#efcd62", V: "#c7a03a",
   // sparkle
   Z: "#fffbe0",
+  // animals
+  A: "#f4f1e8", a: "#d3cbb8", X: "#3a322c", n: "#eba6a2",
+  T: "#e2b36f", t: "#9a6634",
+  J: "#e8c65c", j: "#b8952f",
 };
 
 // --- Farmer, 12x16, two walking frames -------------------------------------
@@ -240,3 +244,78 @@ export const CROPS = {
     ],
   },
 };
+
+// --- Animals (facing right, unlocked by streaks) ---------------------------
+export const CHICKEN_A = [
+  ".....RR.",
+  "....AkAO",
+  "a...AAA.",
+  "aA.AAAA.",
+  ".AAAAAa.",
+  ".aAAAaa.",
+  "..aaaa..",
+  "...O.O..",
+];
+
+export const CHICKEN_B = [ // pecking
+  "........",
+  "........",
+  "a.......",
+  "aA.AAA..",
+  ".AAAAARR",
+  ".aAAAAkA",
+  "..aaaa.O",
+  "...O.O..",
+];
+
+export const COW_A = [
+  ".........w.w",
+  "........kAAA",
+  ".AAXXAAAAAkA",
+  "kAXXXAAXXAAA",
+  ".AAXAAAXXnnn",
+  ".AAAAAAAA.n.",
+  ".A.A..A.A...",
+  ".k.k..k.k...",
+];
+
+export const COW_B = [ // grazing
+  "............",
+  "............",
+  ".AAXXAAAA...",
+  "kAXXXAAXXw.w",
+  ".AAXAAAXkAAA",
+  ".AAAAAAAAAkA",
+  ".A.A..A.Annn",
+  ".k.k..k.k.n.",
+];
+
+export const DOG_A = [
+  ".....tTT..",
+  "t....tTkTT",
+  "t.TTTTTTTk",
+  ".tTTTTTT..",
+  "..TTTTTT..",
+  "..TT..TT..",
+  "..tt..tt..",
+];
+
+export const DOG_B = [ // running, tail up
+  "t....tTT..",
+  "t....tTkTT",
+  ".tTTTTTTTk",
+  "..TTTTTT..",
+  "..TTTTTT..",
+  ".TT....TT.",
+  ".tt....tt.",
+];
+
+export const HAY = [
+  ".jJJJJJJj.",
+  "jJJjJJjJJj",
+  "JJJJJJJJJJ",
+  "jJjJJjJJjJ",
+  "JJJJJJJJJJ",
+  "jJJjJJJjJj",
+  ".jjjjjjjj.",
+];

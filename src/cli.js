@@ -22,6 +22,7 @@ generate({
   out: args.out,
   crop: args.crop,
   language: args.language,
+  streak: args.streak !== undefined ? Number(args.streak) : undefined, // preview animals: --streak 100
   demo: args.demo ? (args.demo === true ? 42 : Number(args.demo)) : false,
 })
   .then((r) => console.log(`🌱 ${r.out} — ${r.total} contributions, crop: ${r.crop}, ${(r.bytes / 1024).toFixed(0)} KB`))

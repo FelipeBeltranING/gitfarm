@@ -5,7 +5,7 @@ import { demoCalendar } from "./demo.js";
 import { fetchCalendar, fetchTopLanguage } from "./github.js";
 import { cropForLanguage, CROP_NAMES } from "./crops.js";
 
-export async function generate({ user, token, out = "dist/farm.svg", crop, demo = false, language }) {
+export async function generate({ user, token, out = "dist/farm.svg", crop, demo = false, language, streak }) {
   let calendar;
   if (demo) {
     calendar = demoCalendar(typeof demo === "number" ? demo : 42);
@@ -26,6 +26,7 @@ export async function generate({ user, token, out = "dist/farm.svg", crop, demo 
     weeks: calendar.weeks,
     crop: finalCrop,
     language: crop && crop !== "auto" ? undefined : language ?? undefined,
+    streak,
   });
 
   await mkdir(dirname(out), { recursive: true });
