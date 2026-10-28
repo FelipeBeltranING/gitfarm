@@ -8,7 +8,9 @@ and plants a crop wherever you committed. The more you code, the bigger the harv
 
 <img src="examples/demo.svg" alt="GitFarm demo: a farmer planting corn, sunflowers and tomatoes over a contribution graph" width="100%">
 
-**[🌐 Try it in your browser](#web-generator)** · **[🚜 Use the GitHub Action](#plant-your-own-farm-2-minutes)** · **[🎞️ Share it as a video](#share-it-as-a-video)**
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-GitFarm-green?logo=github)](https://github.com/marketplace/actions/gitfarm-contribution-farm)
+
+**[🌐 Try it in your browser](https://gitfarm-nu.vercel.app)** · **[🚜 Use the GitHub Action](#plant-your-own-farm-2-minutes)** · **[🎞️ Share it as a video](#share-it-as-a-video)**
 
 </div>
 
@@ -90,11 +92,11 @@ farmer_overalls: "#3d72bd"
 
 ## Web generator
 
-No setup at all: type your username, pick your options and copy the Markdown line into your README.
+No setup at all: go to **[gitfarm-nu.vercel.app](https://gitfarm-nu.vercel.app)**, type your username, pick your options and copy the Markdown line into your README.
 The image is generated on the fly and refreshed every few hours.
 
 ```md
-![My GitHub farm](https://YOUR-DEPLOYMENT.vercel.app/api/farm?user=your-username&season=auto)
+![My GitHub farm](https://gitfarm-nu.vercel.app/api/farm?user=your-username&season=auto)
 ```
 
 All the options below work as query parameters (`crop`, `season`, `time`, `timezone`, `weather`,
