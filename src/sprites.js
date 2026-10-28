@@ -28,6 +28,11 @@ export const PALETTE = {
   A: "#f4f1e8", a: "#d3cbb8", X: "#3a322c", n: "#eba6a2",
   T: "#e2b36f", t: "#9a6634",
   J: "#e8c65c", j: "#b8952f",
+  // buildings
+  Q: "#b8402f", K: "#7f2a22", I: "#5b4a45", i: "#7a6660",
+  M: "#a0693a", m: "#6b4226", e: "#d6d9dc", x: "#a3a8ad",
+  // water
+  v: "#7fc8f8", z: "#4a9fd8",
 };
 
 // --- Farmer, 12x16, two walking frames -------------------------------------
@@ -318,4 +323,69 @@ export const HAY = [
   "JJJJJJJJJJ",
   "jJJjJJJjJj",
   ".jjjjjjjj.",
+];
+
+// --- Iteration 2: scarecrow & buildings -------------------------------------
+export const SCARECROW = [
+  "....kkkk....",
+  "...kHHHHk...",
+  ".kkHHHHHHkk.",
+  "....aaaa....",
+  "....kaak....",
+  "....aaaa....",
+  "jPPPPpPPPPPj",
+  "j..PPPPpP..j",
+  "....PPPP....",
+  "....UUUU....",
+  ".....mm.....",
+  ".....mm.....",
+  ".....mm.....",
+  ".....mm.....",
+];
+
+export const SHACK = [
+  "....mmmm....",
+  "..mmmmmmmm..",
+  "mmmmmmmmmmmm",
+  ".MMMMMMMMMM.",
+  ".MmMMMMMMmM.",
+  ".MMMMkkMMMM.",
+  ".MmMMkkMMmM.",
+  ".MMMMkkMMMM.",
+  ".mmmmkkmmmm.",
+];
+
+export const BARN = [
+  "......IIII......",
+  ".....IiiiiI.....",
+  "....IiiiiiiI....",
+  "...IiiiiiiiiI...",
+  "..IiiiiiiiiiiI..",
+  ".IIIIIIIIIIIIII.",
+  "..QQQQQAAQQQQQ..",
+  "..QKQQQAAQQQKQ..",
+  "..QQQQQQQQQQQQ..",
+  "..QQQAAAAAAQQQ..",
+  "..QQQAKAAKAQQQ..",
+  "..QQQAAKKAAQQQ..",
+  "..QQQAKAAKAQQQ..",
+  "..KKKAAAAAAKKK..",
+];
+
+export const SILO = [
+  "..II..",
+  ".IiiI.",
+  "IiiiiI",
+  "eeeeex",
+  "eeeeex",
+  "xxxxxx",
+  "eeeeex",
+  "eeeeex",
+  "xxxxxx",
+  "eeeeex",
+  "eeeeex",
+  "xxxxxx",
+  "eeeeex",
+  "eeeeex",
+  "xxxxxx",
 ];

@@ -45,6 +45,20 @@ and a little sign tells you how many days you need for the next one.
 
 Longest streak, not current: breaking your streak never takes your animals away.
 
+## Around the farm
+
+- 🪧 **The sign** shows your total, your crop, your current streak and your best day.
+- 🎃 **A scarecrow** guards the plot of your best day, with a little sign showing the count.
+- 🏠 **Your building grows** with your contributions in the last year:
+
+  | Contributions | Building |
+  | --- | --- |
+  | Less than 100 | A small shack |
+  | 100 – 999 | A red barn |
+  | 1,000+ | A red barn with a silo |
+
+- 🧺 **Harvest counter:** when the farmer finishes, a speech bubble counts up your contributions.
+
 ## Plant your own farm (2 minutes)
 
 **1.** In your profile repo (`your-username/your-username`), create `.github/workflows/farm.yml`:
@@ -107,6 +121,16 @@ No dependencies, just Node 20+:
 node src/cli.js --user your-username --out farm.svg          # real data (token optional: --token or GITHUB_TOKEN)
 node src/cli.js --demo --user octocat --crop corn --out demo.svg  # fake data, no network
 node src/cli.js --demo --user octocat --streak 100 --out demo.svg # preview all animals
+```
+
+## Contributing
+
+PRs are very welcome, especially new crops and animals (it's just pixel art in `src/sprites.js`).
+Check the [issues](../../issues) labelled `good first issue`.
+
+```bash
+npm test        # node:test, no dependencies
+npm run demo    # regenerate examples/demo.svg
 ```
 
 ## How it works
