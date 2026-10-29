@@ -134,3 +134,7 @@ test("a cat naps on the barn roof while the current streak is 3+ days", () => {
   assert.doesNotMatch(render({ streak: 2 }), /href="#cat"/);
   assert.match(render({ streak: 3 }), /href="#cat"/);
 });
+
+test("perched birds don't blink (no frame-swap class on a single sprite)", () => {
+  assert.doesNotMatch(render(), /href="#birdP" class=/);
+});

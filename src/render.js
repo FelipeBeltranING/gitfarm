@@ -378,7 +378,7 @@ export function renderFarm({
     birds.push(
       `<g style="animation:${flyName} ${T.toFixed(2)}s linear infinite">` +
       `<g transform="scale(${dx < 0 ? -1.5 : 1.5},1.5)">` +
-      `<g ${anim(windowed(0, leave))}><use href="#birdP" class="pa" style="animation-delay:-${(b * 0.5).toFixed(1)}s"/></g>` +
+      `<g ${anim(windowed(0, leave))}><use href="#birdP"/></g>` +
       `<g ${anim(windowed(leave, leave + 1.4))}><use href="#birdA" class="fa"/><use href="#birdB" class="fb"/></g>` +
       `</g></g>`,
     );
