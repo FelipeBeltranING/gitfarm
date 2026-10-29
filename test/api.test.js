@@ -37,6 +37,7 @@ test("bad options become an error image instead of a crash", async () => {
   const r = await call({ demo: "1", crop: "banana" });
   assert.equal(r.status, 200);
   assert.match(r.body, /Unknown crop/);
+  assert.match(r.body, /data-gitfarm-error/);
 });
 
 test("recorder reads the loop length from the SVG", () => {

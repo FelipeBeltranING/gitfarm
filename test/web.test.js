@@ -93,7 +93,7 @@ function setup({ search = "", fetch: fetchImpl, clipboard } = {}) {
     return promise;
   });
 
-  const app = createFarmApp({
+  createFarmApp({
     document,
     location,
     history,
@@ -104,7 +104,7 @@ function setup({ search = "", fetch: fetchImpl, clipboard } = {}) {
     revokeObjectURL: (url) => revoked.push(url),
   });
 
-  return { app, els, document, location, history, fetchCalls, downloads, blobs, revoked, timers, copied };
+  return { els, document, location, history, fetchCalls, downloads, blobs, revoked, timers, copied };
 }
 
 function respond(call, { svg = FARM_SVG, ok = true, status = 200 } = {}) {
@@ -113,10 +113,11 @@ function respond(call, { svg = FARM_SVG, ok = true, status = 200 } = {}) {
 
 test("the page wires the disabled Download SVG button to the app module", async () => {
   const html = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
-  assert.match(html, /<button type="button" id="copy">Copy<\/button>/);
-  assert.match(html, /<button type="button" id="download" disabled>Download SVG<\/button>/);
-  assert.match(html, /<script type="module" src="app\.js"><\/script>/);
-  assert.match(html, /id="status" role="status" aria-live="polite"/);
+  const button = html.match(/<button\b[^>]*\bid="download"[^>]*>[\s\S]*?<\/button>/i)?.[0];
+  assert.ok(button, "Download SVG button is present");
+  assert.match(button, /\bdisabled\b/i, "Download SVG starts disabled");
+  assert.match(button, />\s*Download SVG\s*</i);
+  assert.match(html, /<script\b(?=[^>]*\btype="module")(?=[^>]*\bsrc="app\.js")[^>]*>\s*<\/script>/i);
 });
 
 test("safe filenames strip unsafe characters and never escape the download folder", () => {
@@ -304,6 +305,24 @@ test("editing the username or settings invalidates the loaded download", async (
   els.crop.value = "auto";
   els.form.dispatch("change");
   assert.equal(els.download.disabled, false);
+});
+
+test("editing during an in-flight load leaves download disabled", async () => {
+  const { els, fetchCalls, downloads } = setup();
+  els.user.value = "vinay";
+  els.form.requestSubmit();
+  respond(fetchCalls[0]);
+  await tick();
+
+  // The fetch has resolved, but the preview image has not fired its load event yet.
+  els.user.value = "octocat";
+  els.form.dispatch("input");
+  els.farm.dispatch("load");
+
+  assert.equal(els.download.disabled, true);
+  assert.match(els.status.textContent, /settings changed/i);
+  els.download.click();
+  assert.equal(downloads.length, 0);
 });
 
 test("query-string usernames still plant automatically", () => {

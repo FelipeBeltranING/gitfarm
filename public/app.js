@@ -254,8 +254,6 @@ export function createFarmApp({
     showSnippet();
     syncDownload();
   }
-
-  return { currentUrl, showSnippet, syncDownload };
 }
 
 if (typeof document !== "undefined") {
