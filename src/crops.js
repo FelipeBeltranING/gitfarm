@@ -11,7 +11,7 @@ const LANGUAGE_CROPS = {
   Rust: "tomato",
   Go: "tomato",
   Ruby: "tomato",
-  PHP: "tomato",
+  PHP: "avocado",
   C: "coffee",
   "C++": "coffee",
   "C#": "coffee",
@@ -51,7 +51,7 @@ const LANGUAGE_CROPS = {
   Makefile: "rice",
 };
 
-export const CROP_NAMES = ["corn", "sunflower", "tomato", "coffee", "strawberry", "pumpkin", "cacao", "carrot", "rice", "wheat"];
+export const CROP_NAMES = ["corn", "sunflower", "tomato", "coffee", "strawberry", "pumpkin", "cacao", "carrot", "rice", "wheat", "avocado"];
 
 export const MIN_SHARE = 0.15;
 export const MAX_CROPS = 3;

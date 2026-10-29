@@ -558,6 +558,7 @@
 @keyframes o2385{0%{opacity:0}78.454%{opacity:1}100%{opacity:1}}
 @keyframes o2545{0%{opacity:0}83.717%{opacity:1}100%{opacity:1}}
 @keyframes o2390{0%{opacity:0}78.618%{opacity:1}100%{opacity:1}}
+@keyframes o2400{0%{opacity:0}78.947%{opacity:1}100%{opacity:1}}
 @keyframes w825_860{0%{opacity:0}27.138%{opacity:1}28.289%{opacity:0}100%{opacity:0}}
 @keyframes w870_905{0%{opacity:0}28.618%{opacity:1}29.770%{opacity:0}100%{opacity:0}}
 @keyframes w915_950{0%{opacity:0}30.099%{opacity:1}31.250%{opacity:0}100%{opacity:0}}
@@ -1295,6 +1296,7 @@
 <use href="#weed" x="964" y="100" class="a" style="animation-name:o2545"/>
 <use href="#soil" x="964" y="118" class="a" style="animation-name:o2390"/>
 <use href="#soil" x="964" y="136" class="a" style="animation-name:o2395"/>
+<use href="#soil" x="964" y="154" class="a" style="animation-name:o2400"/>
 <g class="a" style="animation-name:w825_860"><use href="#drops" x="428" y="178" class="drip"/></g>
 <g class="a" style="animation-name:w870_905"><use href="#drops" x="428" y="160" class="drip"/></g>
 <g class="a" style="animation-name:w915_950"><use href="#drops" x="428" y="142" class="drip"/></g>

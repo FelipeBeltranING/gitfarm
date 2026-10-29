@@ -18,7 +18,7 @@ inputs:
     required: false
     default: "dist/farm.svg"
   crop:
-    description: "auto (mix of your top languages), or up to 3 of corn, sunflower, tomato, coffee, strawberry, pumpkin, cacao, carrot, rice, wheat (comma separated)."
+    description: "auto (mix of your top languages), or up to 3 of corn, sunflower, tomato, coffee, strawberry, pumpkin, cacao, carrot, rice, wheat, avocado (comma separated)."
     required: false
     default: "auto"
   season:
