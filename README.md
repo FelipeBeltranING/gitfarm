@@ -73,6 +73,8 @@ Longest streak, not current: breaking your streak never takes your animals away.
   | 1,000+ | A red barn with a silo |
 
 - 🧺 **Harvest counter:** when the farmer finishes, a speech bubble counts up your contributions.
+- 🐦 **Birds** rest on the fence and fly off when the farmer gets close.
+- 🐱 **A cat** naps on the barn roof while your current streak is 3 days or more.
 - 🚿 **Watering:** the farmer stops on your full-harvest days (up to 12) and waters them.
 
 ## Seasons, weather and time of day

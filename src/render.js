@@ -3,6 +3,7 @@ import {
   SPROUT, SMALL, SPARKLE, CROPS,
   CHICKEN_A, CHICKEN_B, COW_A, COW_B, DOG_A, DOG_B, HAY,
   SCARECROW, SHACK, BARN, SILO, DROPS, PUDDLE, FLOWER,
+  BIRD_PERCHED, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING,
 } from "./sprites.js";
 import { computeStats, unlockedAnimals, nextUnlock } from "./stats.js";
 import { themeFor, resolveSeason, farmerPalette } from "./themes.js";
@@ -140,6 +141,8 @@ function normalizeCrops(crops, crop, language) {
  * @param {{hat?:string, shirt?:string, overalls?:string}} [opts.farmer]
  * @param {Date} [opts.date]         generation date (for season: auto)
  */
+const CAT_STREAK = 3; // current streak that wakes up... well, brings the cat
+
 export function renderFarm({
   user, total, weeks, crop, language, crops: cropMix, streak,
   season = "none", time = "day", weather = true, farmer = {}, date = new Date(),
@@ -153,6 +156,7 @@ export function renderFarm({
 
   const stats = computeStats(weeks);
   const bestStreak = streak ?? stats.longestStreak;
+  const currentStreak = streak ?? stats.currentStreak;
   const animals = unlockedAnimals(bestStreak);
 
   const W = weeks.length;
@@ -202,6 +206,7 @@ export function renderFarm({
   const countStart = walkEnd + EXIT;
   const T = countStart + HOLD + FADE;
   const pct = (t) => `${((t / T) * 100).toFixed(3)}%`;
+  const extraCss = [];
 
   // Keyframes are generated per distinct timestamp and shared between elements.
   const keyframes = new Map();
@@ -358,6 +363,27 @@ export function renderFarm({
   }
   counter += "</g>";
 
+  // --- Birds perched on the top fence fly off as the farmer gets close ------
+  const birds = [];
+  const fenceTop = GRID_TOP - 12;
+  const bestCol = stats.bestDay ? path.find(([w, d]) => weeks[w]?.[d]?.date === stats.bestDay.date)?.[0] : -10;
+  [0.22, 0.47, 0.71].forEach((share, b) => {
+    let w = Math.round(share * (W - 1));
+    if (Math.abs(w - bestCol) < 4) w = Math.min(W - 2, bestCol + 5);
+    const bx = cellX(w) + 4 + (b % 2) * 6;
+    const leave = Math.max(0.3, cellTime[w * 7] - 0.4);
+    const flyName = `bird${b}`;
+    const dx = b % 2 ? -50 : 50;
+    extraCss.push(`@keyframes ${flyName}{0%{transform:translate(${bx}px,${fenceTop}px)}${pct(leave)}{transform:translate(${bx}px,${fenceTop}px)}${pct(leave + 1.4)}{transform:translate(${bx + dx}px,${fenceTop - 70}px)}100%{transform:translate(${bx + dx}px,${fenceTop - 70}px)}}`);
+    birds.push(
+      `<g style="animation:${flyName} ${T.toFixed(2)}s linear infinite">` +
+      `<g transform="scale(${dx < 0 ? -1.5 : 1.5},1.5)">` +
+      `<g ${anim(windowed(0, leave))}><use href="#birdP" class="pa" style="animation-delay:-${(b * 0.5).toFixed(1)}s"/></g>` +
+      `<g ${anim(windowed(leave, leave + 1.4))}><use href="#birdA" class="fa"/><use href="#birdB" class="fb"/></g>` +
+      `</g></g>`,
+    );
+  });
+
   // --- Pasture: animals unlocked by your best streak ------------------------
   const fenceBottom = GRID_TOP + gridH + 6;
   const floorY = fenceBottom + 34;
@@ -375,12 +401,22 @@ export function renderFarm({
     pasture.push(`<use href="#barn" x="${barnX}" y="${floorY}"/>`);
     if (building === "barn+silo") pasture.push(`<use href="#silo" x="${barnX - 24}" y="${floorY}"/>`);
   }
+  // A cat naps on the roof while your current streak is alive.
+  if (currentStreak >= CAT_STREAK) {
+    const roofTop = floorY - (building === "shack" ? 18 : 28);
+    pasture.push(
+      `<use href="#cat" x="${barnX}" y="${roofTop + 1}"/>` +
+      `<text x="${barnX - 8}" y="${roofTop - 4}" class="zz">z</text>` +
+      `<text x="${barnX - 8}" y="${roofTop - 4}" class="zz" style="animation-delay:-1.2s">z</text>`,
+    );
+    extraCss.push(`.zz{font:bold 9px ${FONT};fill:#fff3d1;opacity:0;animation:zz 2.4s linear infinite}
+@keyframes zz{0%{opacity:0;transform:translate(0,0)}20%{opacity:.9}100%{opacity:0;transform:translate(-10px,-12px)}}`);
+  }
   const hayX = barnX - (building === "barn+silo" ? 54 : 44);
   pasture.push(`<use href="#hay" x="${hayX}" y="${floorY - 14}"/>`);
 
   const roamMin = 12 + pastureSignW + 24;
   const roamMax = hayX - 16;
-  const extraCss = [];
   if (animals.cow) {
     const cow = wander({ name: "cow", seed: 3, minX: roamMin, maxX: roamMax, y: floorY, speed: 6, pause: [3, 7], minDuration: 30 });
     extraCss.push(cow.css);
@@ -482,7 +518,7 @@ export function renderFarm({
   const cropNames = crops.map((c) => (c.language ? `${CROPS[c.crop].name} (${c.language})` : CROPS[c.crop].name));
   const cropLabel = cropNames.length > 1 ? `${cropNames.slice(0, -1).join(", ")} & ${cropNames.at(-1)}` : cropNames[0];
   const subtitle = `${plural(total, "contribution")} in the last year · growing ${cropLabel}`;
-  const statsLine = `current streak: ${plural(stats.currentStreak, "day")}` +
+  const statsLine = `current streak: ${plural(currentStreak, "day")}` +
     (stats.bestDay ? ` · best day: ${shortDate(stats.bestDay.date)} (${stats.bestDay.count})` : "");
   const signW = Math.max(title.length * 9.2, subtitle.length * 6.7, statsLine.length * 6.7) + 24;
 
@@ -547,6 +583,10 @@ export function renderFarm({
   footDef("shack", SHACK);
   footDef("barn", BARN);
   footDef("silo", SILO);
+  footDef("birdP", BIRD_PERCHED);
+  footDef("birdA", BIRD_FLY_A);
+  footDef("birdB", BIRD_FLY_B);
+  footDef("cat", CAT_SLEEPING);
   if (waterWindows.length) { def("farmerW", FARMER_WATER); def("drops", DROPS); }
   if (theme.puddles) def("puddle", PUDDLE);
   if (theme.flowers) {
@@ -626,6 +666,7 @@ ${legend}
 <rect x="12" y="${fenceBottom + 16}" width="${pastureSignW.toFixed(0)}" height="20" rx="2" fill="#5e3820"/>
 <rect x="14" y="${fenceBottom + 18}" width="${(pastureSignW - 4).toFixed(0)}" height="16" rx="1" fill="#9a6338"/>
 <text x="22" y="${fenceBottom + 30}" class="t3">${escapeXml(pastureText)}</text>
+${birds.join("\n")}
 <g class="field">${counter}</g>
 </svg>`;
 }

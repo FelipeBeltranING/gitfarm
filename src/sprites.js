@@ -550,3 +550,34 @@ export const FLOWER = [
   "fYf",
   ".L.",
 ];
+
+// --- v2 extras: birds on the fence, a cat on the barn ----------------------
+export const BIRD_PERCHED = [
+  "...UU.",
+  "..UUkO",
+  "uUUUU.",
+  ".uwwu.",
+  "..O.O.",
+];
+
+export const BIRD_FLY_A = [ // wings up
+  "u...u..",
+  ".u.u...",
+  "..UUUkO",
+  "...ww..",
+];
+
+export const BIRD_FLY_B = [ // wings down
+  ".......",
+  "..UUUkO",
+  ".u.ww..",
+  "u...u..",
+];
+
+export const CAT_SLEEPING = [
+  ".1.1.....",
+  ".1111....",
+  "12111111.",
+  ".11111112",
+  "..222222.",
+];

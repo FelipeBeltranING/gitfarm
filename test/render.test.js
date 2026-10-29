@@ -123,3 +123,14 @@ test("plants are drawn back to front so tall ones overlap the row behind", () =>
     if (x0 === x1) assert.ok(y1 >= y0 - 20, "same column must be drawn top to bottom");
   }
 });
+
+test("three birds sit on the fence and fly off as the farmer gets close", () => {
+  const svg = render();
+  assert.equal(svg.match(/href="#birdP"/g).length, 3);
+  assert.match(svg, /@keyframes bird0\{/);
+});
+
+test("a cat naps on the barn roof while the current streak is 3+ days", () => {
+  assert.doesNotMatch(render({ streak: 2 }), /href="#cat"/);
+  assert.match(render({ streak: 3 }), /href="#cat"/);
+});
