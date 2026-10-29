@@ -39,6 +39,7 @@
     background: var(--sun); border: 3px solid var(--ink); border-radius: 2px; box-shadow: 0 4px 0 var(--ink);
   }
   button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+  button:disabled { cursor: not-allowed; opacity: 0.55; box-shadow: none; }
   details { grid-column: 1 / -1; }
   summary { cursor: pointer; font-weight: bold; color: #f3dfae; }
   .colors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
@@ -120,12 +121,12 @@
 
   <div class="preview">
     <img id="farm" src="api/farm?demo=1&streak=100" alt="GitFarm preview" width="1008" height="262">
-    <p class="status" id="status">This is a demo farm. Type your username to plant yours!</p>
+    <p class="status" id="status" role="status" aria-live="polite">This is a demo farm. Type your username to plant yours!</p>
   </div>
 
   <section class="board snippet">
     <h2>📋 Paste this in your README</h2>
-    <div class="code"><code id="snippet">![My GitHub farm](…)</code><button type="button" id="copy">Copy</button></div>
+    <div class="code"><code id="snippet">![My GitHub farm](…)</code><button type="button" id="copy">Copy</button><button type="button" id="download" disabled>Download SVG</button></div>
   </section>
 
   <section class="board howto">
@@ -138,50 +139,6 @@
   <footer>Made with 🌱 by <a href="https://github.com/FelipeBeltranING">FelipeBeltranING</a> · <a href="https://github.com/FelipeBeltranING/gitfarm">⭐ Star on GitHub</a></footer>
 </main>
 
-<script>
-  const $ = (id) => document.getElementById(id);
-  const DEFAULTS = { hat: "#efc96d", shirt: "#d9473b", overalls: "#3d72bd" };
-
-  function farmUrl(user = $("user").value.trim()) {
-    const p = new URLSearchParams({ user });
-    for (const [key, fallback] of [["crop", "auto"], ["season", "none"], ["time", "auto"]]) {
-      if ($(key).value !== fallback) p.set(key, $(key).value);
-    }
-    if (!$("weather").checked) p.set("weather", "false");
-    for (const key of ["hat", "shirt", "overalls"]) {
-      if ($(key).value !== DEFAULTS[key]) p.set(key, $(key).value);
-    }
-    return new URL(`api/farm?${p}`, location.href).href;
-  }
-
-  function showSnippet() {
-    const user = $("user").value.trim() || "your-username";
-    $("snippet").textContent = `![${user}'s GitHub farm](${farmUrl(user)})`;
-  }
-
-  $("form").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const user = $("user").value.trim();
-    if (!user) return;
-    $("status").textContent = "🚜 Planting...";
-    $("farm").src = farmUrl();
-    showSnippet();
-    history.replaceState(null, "", `?user=${encodeURIComponent(user)}`);
-  });
-  $("farm").addEventListener("load", () => {
-    if ($("user").value.trim()) $("status").textContent = "🌻 Here's your farm! It replants itself every few hours.";
-  });
-  $("farm").addEventListener("error", () => { $("status").textContent = "Something went wrong. Check the username and try again."; });
-  $("form").addEventListener("input", showSnippet);
-
-  $("copy").addEventListener("click", async () => {
-    try { await navigator.clipboard.writeText($("snippet").textContent); $("copy").textContent = "Copied!"; }
-    catch { $("copy").textContent = "Select & copy"; }
-    setTimeout(() => { $("copy").textContent = "Copy"; }, 1500);
-  });
-
-  const initial = new URLSearchParams(location.search).get("user");
-  if (initial) { $("user").value = initial; $("form").requestSubmit(); } else { showSnippet(); }
-</script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
