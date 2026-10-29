@@ -365,6 +365,29 @@ export const CROPS = {
       "...dd...",
     ],
   },
+  avocado: {
+    name: "avocado",
+    grown: [
+      "..DLLD..",
+      ".DLllLD.",
+      "DLLLLlLD",
+      ".DLDLLD.",
+      "..DLLD..",
+      "...mm...",
+      "...mm...",
+      "...mm...",
+    ],
+    harvest: [
+      "...Dl...",
+      "..DLLD..",
+      "..DlwD..",
+      ".DlwwlD.",
+      ".DlBBlD.",
+      ".DlBmlD.",
+      "..DllD..",
+      "...DD...",
+    ],
+  },
 };
 
 // --- Animals (facing right, unlocked by streaks) ---------------------------
