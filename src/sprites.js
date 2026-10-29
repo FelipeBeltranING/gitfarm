@@ -560,6 +560,14 @@ export const BIRD_PERCHED = [
   "..O.O.",
 ];
 
+export const BIRD_PECK = [ // head down, pecking the fence
+  "......",
+  "..UU..",
+  "uUUUUU",
+  ".uwwUk",
+  "..O.OO",
+];
+
 export const BIRD_FLY_A = [ // wings up
   "u...u..",
   ".u.u...",

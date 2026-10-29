@@ -124,10 +124,15 @@ test("plants are drawn back to front so tall ones overlap the row behind", () =>
   }
 });
 
-test("three birds sit on the fence and fly off as the farmer gets close", () => {
-  const svg = render();
-  assert.equal(svg.match(/href="#birdP"/g).length, 3);
-  assert.match(svg, /@keyframes bird0\{/);
+test("birds visit the fence: 2 to 5, different each day, stable for the same day", () => {
+  const day1 = render({ date: new Date("2026-10-29") });
+  const again = render({ date: new Date("2026-10-29") });
+  const day2 = render({ date: new Date("2026-10-30") });
+  const count = (svg) => (svg.match(/class="bird"/g) ?? []).length;
+  assert.equal(day1, again);
+  assert.ok(count(day1) >= 2 && count(day1) <= 5);
+  const flocks = new Set(Array.from({ length: 8 }, (_, k) => render({ date: new Date(Date.UTC(2026, 10, k + 1)) }).match(/@keyframes bird0\{[^}]*\}/)[0]));
+  assert.ok(flocks.size > 1, "the flock should change between days");
 });
 
 test("a cat naps on the barn roof while the current streak is 3+ days", () => {
@@ -135,6 +140,7 @@ test("a cat naps on the barn roof while the current streak is 3+ days", () => {
   assert.match(render({ streak: 3 }), /href="#cat"/);
 });
 
-test("perched birds don't blink (no frame-swap class on a single sprite)", () => {
-  assert.doesNotMatch(render(), /href="#birdP" class=/);
+test("perched birds swap between two frames (normal and pecking), never one alone", () => {
+  const svg = render();
+  assert.equal((svg.match(/href="#birdP" class="bpA"/g) ?? []).length, (svg.match(/href="#birdK" class="bpB"/g) ?? []).length);
 });

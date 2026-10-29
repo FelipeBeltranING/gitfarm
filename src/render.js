@@ -3,11 +3,12 @@ import {
   SPROUT, SMALL, SPARKLE, CROPS,
   CHICKEN_A, CHICKEN_B, COW_A, COW_B, DOG_A, DOG_B, HAY,
   SCARECROW, SHACK, BARN, SILO, DROPS, PUDDLE, FLOWER,
-  BIRD_PERCHED, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING,
+  BIRD_PERCHED, BIRD_PECK, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING,
 } from "./sprites.js";
 import { computeStats, unlockedAnimals, nextUnlock } from "./stats.js";
 import { themeFor, resolveSeason, farmerPalette } from "./themes.js";
 import { harvestCap, plantFor, stretchSprite, dayAmount, STEM_MAX } from "./growth.js";
+import { planBirds, renderBirds, seedFrom } from "./birds.js";
 
 const CELL = 8 * PIXEL; // 16
 const GAP = 2;
@@ -363,26 +364,20 @@ export function renderFarm({
   }
   counter += "</g>";
 
-  // --- Birds perched on the top fence fly off as the farmer gets close ------
-  const birds = [];
-  const fenceTop = GRID_TOP - 12;
-  const bestCol = stats.bestDay ? path.find(([w, d]) => weeks[w]?.[d]?.date === stats.bestDay.date)?.[0] : -10;
-  [0.22, 0.47, 0.71].forEach((share, b) => {
-    let w = Math.round(share * (W - 1));
-    if (Math.abs(w - bestCol) < 4) w = Math.min(W - 2, bestCol + 5);
-    const bx = cellX(w) + 4 + (b % 2) * 6;
-    const leave = Math.max(0.3, cellTime[w * 7] - 0.4);
-    const flyName = `bird${b}`;
-    const dx = b % 2 ? -50 : 50;
-    extraCss.push(`@keyframes ${flyName}{0%{transform:translate(${bx}px,${fenceTop}px)}${pct(leave)}{transform:translate(${bx}px,${fenceTop}px)}${pct(leave + 1.4)}{transform:translate(${bx + dx}px,${fenceTop - 70}px)}100%{transform:translate(${bx + dx}px,${fenceTop - 70}px)}}`);
-    birds.push(
-      `<g style="animation:${flyName} ${T.toFixed(2)}s linear infinite">` +
-      `<g transform="scale(${dx < 0 ? -1.5 : 1.5},1.5)">` +
-      `<g ${anim(windowed(0, leave))}><use href="#birdP"/></g>` +
-      `<g ${anim(windowed(leave, leave + 1.4))}><use href="#birdA" class="fa"/><use href="#birdB" class="fb"/></g>` +
-      `</g></g>`,
-    );
-  });
+  // --- Birds visit the top fence: a different flock every day ---------------
+  const bestCol = stats.bestDay ? path.find(([w, d]) => weeks[w]?.[d]?.date === stats.bestDay.date)?.[0] : -99;
+  const flock = renderBirds(
+    planBirds({
+      columns: W,
+      colTime: (w) => cellTime[w * 7],
+      walkEnd,
+      loopEnd: T - FADE,
+      avoid: bestCol ?? -99,
+      seed: seedFrom(`${user}|${date.toISOString().slice(0, 10)}`),
+    }),
+    { T, fenceTop: GRID_TOP - 12, cellX, pct },
+  );
+  extraCss.push(flock.css);
 
   // --- Pasture: animals unlocked by your best streak ------------------------
   const fenceBottom = GRID_TOP + gridH + 6;
@@ -584,6 +579,7 @@ export function renderFarm({
   footDef("barn", BARN);
   footDef("silo", SILO);
   footDef("birdP", BIRD_PERCHED);
+  footDef("birdK", BIRD_PECK);
   footDef("birdA", BIRD_FLY_A);
   footDef("birdB", BIRD_FLY_B);
   footDef("cat", CAT_SLEEPING);
@@ -666,7 +662,7 @@ ${legend}
 <rect x="12" y="${fenceBottom + 16}" width="${pastureSignW.toFixed(0)}" height="20" rx="2" fill="#5e3820"/>
 <rect x="14" y="${fenceBottom + 18}" width="${(pastureSignW - 4).toFixed(0)}" height="16" rx="1" fill="#9a6338"/>
 <text x="22" y="${fenceBottom + 30}" class="t3">${escapeXml(pastureText)}</text>
-${birds.join("\n")}
+${flock.markup}
 <g class="field">${counter}</g>
 </svg>`;
 }
