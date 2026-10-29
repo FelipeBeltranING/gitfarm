@@ -81,6 +81,18 @@ export const TILE_GRASS = [
   ".gggggg.",
 ];
 
+// Soil of your best day of the year: straw and sunlight on the furrows.
+export const TILE_GOLD = [
+  ".jJJJJj.",
+  "JJjJJJjJ",
+  "jjjjjjjj",
+  "JJJJJJJJ",
+  "jJJjJJJj",
+  "jjjjjjjj",
+  "JJjJJJjJ",
+  ".jJJJJj.",
+];
+
 export const TILE_SOIL = [
   ".SSSSSS.",
   "ssssssss",
@@ -113,18 +125,6 @@ export const SMALL = [
   ".lLLLl..",
   "...LL...",
   "...DD...",
-];
-
-// Grows on days without commits, every now and then.
-export const WEED = [
-  "........",
-  "........",
-  "........",
-  "........",
-  "......q.",
-  ".q..q.G.",
-  "..GqGG..",
-  "...GG...",
 ];
 
 export const SPARKLE = [
@@ -572,4 +572,43 @@ export const FLOWER = [
   ".f.",
   "fYf",
   ".L.",
+];
+
+// --- v2 extras: birds on the fence, a cat on the barn ----------------------
+export const BIRD_PERCHED = [
+  "...UU.",
+  "..UUkO",
+  "uUUUU.",
+  ".uwwu.",
+  "..O.O.",
+];
+
+export const BIRD_PECK = [ // head down, pecking the fence
+  "......",
+  "..UU..",
+  "uUUUUU",
+  ".uwwUk",
+  "..O.OO",
+];
+
+export const BIRD_FLY_A = [ // wings up
+  "u...u..",
+  ".u.u...",
+  "..UUUkO",
+  "...ww..",
+];
+
+export const BIRD_FLY_B = [ // wings down
+  ".......",
+  "..UUUkO",
+  ".u.ww..",
+  "u...u..",
+];
+
+export const CAT_SLEEPING = [
+  ".1.1.....",
+  ".1111....",
+  "12111111.",
+  ".11111112",
+  "..222222.",
 ];

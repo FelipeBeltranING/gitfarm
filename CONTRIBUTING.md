@@ -20,8 +20,9 @@ Open any generated `.svg` in your browser to watch the animation.
 
 ## Add a crop 🌽
 
-Each crop is two 8×8 pixel grids in [`src/sprites.js`](src/sprites.js): `grown` (level 3 days)
-and `harvest` (level 4 days, your best ones). Every character is a color from `PALETTE`,
+Each crop is two 8×8 pixel grids in [`src/sprites.js`](src/sprites.js): `grown` (busy days)
+and `harvest` (your best ones). Plants get taller on busier days: `src/growth.js` repeats the
+lowest thin stalk row of your sprite (the trunk), so keep a 1–4 pixel wide stalk row near the bottom. Every character is a color from `PALETTE`,
 and `.` is transparent:
 
 ```js

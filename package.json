@@ -1,6 +1,6 @@
 {
   "name": "gitfarm",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "description": "Turn your GitHub contribution graph into a pixel-art farm with a little farmer planting your commits.",
   "type": "module",
   "bin": {

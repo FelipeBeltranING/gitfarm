@@ -16,13 +16,18 @@ and plants a crop wherever you committed. The more you code, the bigger the harv
 
 ## How it grows
 
+**The more you contribute in a day, the taller that day's plant grows**, so your farm reads like a bar chart
+of crops. Each plant is measured against your own year, not someone else's:
+
 | Your day | On the farm |
 | --- | --- |
-| No contributions | Tilled soil… and sometimes weeds 🌿 |
-| A few | A sprout 🌱 |
-| Some | A young plant |
-| Many | A fully grown crop |
-| Your best days | Harvest-ready, with a little sparkle ✨ |
+| No contributions | Clean tilled soil |
+| A few | A sprout 🌱, then a small plant |
+| More | A crop that grows taller with every extra contribution |
+| Your top ~5% days | Full harvest at full height, with a sparkle ✨, and the farmer waters it 🚿 |
+
+The full-harvest line sits a bit below your best day (the 95th percentile of the days you contributed),
+so you get several full harvests a year, and one huge outlier day can't flatten the rest of your farm.
 
 Your crops depend on the languages you use. If you code in several, your field mixes up to 3 crops
 in proportion (languages under 15% are left out):
@@ -59,7 +64,7 @@ Longest streak, not current: breaking your streak never takes your animals away.
 ## Around the farm
 
 - 🪧 **The sign** shows your total, your crop, your current streak and your best day.
-- 🎃 **A scarecrow** guards the plot of your best day, with a little sign showing the count.
+- 🎃 **Your best day of the year** gets a golden plot, and a scarecrow stands on the fence above it with a little sign showing the count.
 - 🏠 **Your building grows** with your contributions in the last year:
 
   | Contributions | Building |
@@ -69,7 +74,9 @@ Longest streak, not current: breaking your streak never takes your animals away.
   | 1,000+ | A red barn with a silo |
 
 - 🧺 **Harvest counter:** when the farmer finishes, a speech bubble counts up your contributions.
-- 🚿 **Watering:** the farmer stops on your 12 best days and waters them.
+- 🐦 **Birds** visit the fence, a different flock every day: they peck, hop and look around, flee when the farmer gets close, and some land again behind him.
+- 🐱 **A cat** naps on the barn roof while your current streak is 3 days or more.
+- 🚿 **Watering:** the farmer stops on your full-harvest days (up to 12) and waters them.
 
 ## Seasons, weather and time of day
 
