@@ -8,7 +8,7 @@ const USERNAME = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
 function errorSvg(message) {
   const safe = String(message).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`).slice(0, 90);
   const w = Math.max(300, safe.length * 7 + 40);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} 60" width="${w}" height="60">` +
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} 60" width="${w}" height="60" data-gitfarm-error="true">` +
     `<rect width="${w}" height="60" rx="8" fill="#3d7530"/><rect x="10" y="10" width="${w - 20}" height="40" rx="3" fill="#5e3820"/>` +
     `<rect x="12" y="12" width="${w - 24}" height="36" rx="2" fill="#9a6338"/>` +
     `<text x="${w / 2}" y="35" text-anchor="middle" font-family="'Courier New',monospace" font-weight="bold" font-size="12" fill="#fff3d1">🌾 ${safe}</text></svg>`;
