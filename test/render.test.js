@@ -85,11 +85,41 @@ test("the farmer stops to water the best days", () => {
 
 test("mixed crops define one sprite set per crop", () => {
   const svg = render({ crop: undefined, crops: [{ crop: "corn", share: 0.5 }, { crop: "tomato", share: 0.5 }] });
-  assert.match(svg, /id="harvest-corn"/);
-  assert.match(svg, /id="harvest-tomato"/);
+  assert.match(svg, /id="(grown|harvest)-corn-\d"/);
+  assert.match(svg, /id="(grown|harvest)-tomato-\d"/);
   assert.match(svg, /growing corn &amp; tomato/);
 });
 
 test("farmer colors end up in the sprites", () => {
   assert.match(render({ farmer: { shirt: "#123456" } }), /fill="#123456"/);
+});
+
+test("days without contributions stay as clean soil (no weeds)", () => {
+  const svg = render({ season: "none" });
+  assert.doesNotMatch(svg, /weed/);
+});
+
+test("rainy season still has puddles on empty days", () => {
+  assert.match(render({ season: "rainy" }), /href="#puddle"/);
+});
+
+test("only the best day of the year gets a golden plot", () => {
+  const svg = render();
+  assert.equal(svg.match(/<use href="#gold"/g).length, 1);
+});
+
+test("top days sparkle and the farmer waters them", () => {
+  const svg = render();
+  assert.match(svg, /href="#sparkle"[^>]*class="tw"/);
+  assert.match(svg, /href="#farmerW" class="watering"/);
+});
+
+test("plants are drawn back to front so tall ones overlap the row behind", () => {
+  const svg = render();
+  const ys = [...svg.matchAll(/<use href="#(?:grown|harvest)-\w+-\d" x="(\d+)" y="(\d+)"/g)].map((m) => [Number(m[1]), Number(m[2])]);
+  for (let k = 1; k < ys.length; k++) {
+    const [x0, y0] = ys[k - 1];
+    const [x1, y1] = ys[k];
+    if (x0 === x1) assert.ok(y1 >= y0 - 20, "same column must be drawn top to bottom");
+  }
 });

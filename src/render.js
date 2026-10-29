@@ -1,17 +1,19 @@
 import {
-  PIXEL, PALETTE, FARMER_A, FARMER_B, FARMER_WATER, TILE_GRASS, TILE_SOIL,
-  SPROUT, SMALL, WEED, SPARKLE, CROPS,
+  PIXEL, PALETTE, FARMER_A, FARMER_B, FARMER_WATER, TILE_GRASS, TILE_SOIL, TILE_GOLD,
+  SPROUT, SMALL, SPARKLE, CROPS,
   CHICKEN_A, CHICKEN_B, COW_A, COW_B, DOG_A, DOG_B, HAY,
   SCARECROW, SHACK, BARN, SILO, DROPS, PUDDLE, FLOWER,
 } from "./sprites.js";
 import { computeStats, unlockedAnimals, nextUnlock } from "./stats.js";
 import { themeFor, resolveSeason, farmerPalette } from "./themes.js";
+import { harvestCap, plantFor, stretchSprite, dayAmount, STEM_MAX } from "./growth.js";
 
 const CELL = 8 * PIXEL; // 16
 const GAP = 2;
-const PITCH = CELL + GAP; // 18
+const PITCH = CELL + GAP; // 18, column spacing
+const ROW_PITCH = 28; // row spacing: room for tall plants to rise over the row behind
 const MARGIN_X = 28;
-const GRID_TOP = 82;
+const GRID_TOP = 100;
 const BOTTOM = 30;
 const PASTURE = 26; // extra strip below the bottom fence where animals live
 
@@ -155,11 +157,11 @@ export function renderFarm({
 
   const W = weeks.length;
   const gridW = W * PITCH - GAP;
-  const gridH = 7 * PITCH - GAP;
+  const gridH = 6 * ROW_PITCH + CELL;
   const width = MARGIN_X * 2 + gridW;
   const height = GRID_TOP + gridH + BOTTOM + PASTURE;
   const cellX = (w) => MARGIN_X + w * PITCH;
-  const cellY = (d) => GRID_TOP + d * PITCH;
+  const cellY = (d) => GRID_TOP + d * ROW_PITCH;
 
   const defs = [];
   const def = (id, rows, palette = pal) => defs.push(`<g id="${id}">${spriteRects(rows, palette)}</g>`);
@@ -179,10 +181,14 @@ export function renderFarm({
   const N = path.length;
   const dayAt = (i) => weeks[path[i][0]]?.[path[i][1]];
 
-  // The farmer stops to water your best harvest days.
+  // Plant height follows that day's contributions, against a cap a bit below the best day.
+  const cap = harvestCap(weeks);
+  const plantAt = path.map((_, i) => plantFor(dayAmount(dayAt(i)), cap));
+
+  // The farmer stops to water your golden days.
   const watered = new Set(
     path.map((_, i) => i)
-      .filter((i) => dayAt(i)?.level === 4)
+      .filter((i) => plantAt[i].golden)
       .sort((a, b) => (dayAt(b).count ?? 0) - (dayAt(a).count ?? 0) || a - b)
       .slice(0, MAX_WATERED),
   );
@@ -223,8 +229,13 @@ export function renderFarm({
   };
 
   // --- Field ---------------------------------------------------------------
+  // Plants are tall, so they're drawn row by row (back to front) after all the soil.
   const base = [];
-  const field = [];
+  const soil = [];
+  const plants = [];
+  const usedSprites = new Set();
+  const spriteHeight = (rows) => rows.length * PIXEL;
+  const cropRows = (crop, stage, stem) => stretchSprite(CROPS[crop][stage], stem);
   path.forEach(([w, d], i) => {
     const day = dayAt(i);
     const x = cellX(w);
@@ -233,51 +244,63 @@ export function renderFarm({
     if (!day) return;
 
     const t = cellTime[i];
-    field.push(`<use href="#soil" x="${x}" y="${y}" ${anim(on(t))}/>`);
+    soil.push(`<use href="#soil" x="${x}" y="${y}" ${anim(on(t))}/>`);
 
-    const level = day.level;
-    if (level === 0) {
-      // Skipped days: the occasional weed (or a puddle in the rainy season).
-      if (theme.puddles && hash(i * 17 + 3) < 0.18) {
-        field.push(`<use href="#puddle" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER))}/>`);
-      } else if (hash(i * 31 + 7) < 0.2) {
-        field.push(`<use href="#weed" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER * 2))}/>`);
-      }
-    } else if (level === 1) {
-      field.push(`<use href="#sprout" x="${x}" y="${y}" ${anim(on(t + SPROUT_AFTER))}/>`);
-    } else {
-      field.push(`<use href="#sprout" x="${x}" y="${y}" ${anim(windowed(t + SPROUT_AFTER, t + GROWN_AFTER))}/>`);
-      const c = cropAt(i);
-      if (level === 2) {
-        field.push(`<use href="#small" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER))}/>`);
-      } else if (level === 3) {
-        field.push(`<use href="#grown-${c}" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER))}/>`);
-      } else {
-        const delay = (hash(i) * 2).toFixed(2);
-        field.push(
-          `<g ${anim(on(t + GROWN_AFTER))}><use href="#harvest-${c}" x="${x}" y="${y}"/>` +
-          `<use href="#sparkle" x="${x + 10}" y="${y - 1}" class="tw" style="animation-delay:${delay}s"/></g>`,
-        );
-      }
+    const plant = plantAt[i];
+    const order = w * 7 + d;
+    // Your best day of the year gets a golden plot (under the scarecrow's column).
+    if (stats.bestDay && day.date === stats.bestDay.date) {
+      soil.push(`<use href="#gold" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER))}/>`);
     }
+    if (plant.stage === "empty") {
+      // Days without contributions stay as clean tilled soil (puddles only in the rainy season).
+      if (theme.puddles && hash(i * 17 + 3) < 0.18) {
+        plants.push([order, `<use href="#puddle" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER))}/>`]);
+      }
+      return;
+    }
+    if (plant.stage === "sprout") {
+      plants.push([order, `<use href="#sprout" x="${x}" y="${y}" ${anim(on(t + SPROUT_AFTER))}/>`]);
+      return;
+    }
+    const sprout = `<use href="#sprout" x="${x}" y="${y}" ${anim(windowed(t + SPROUT_AFTER, t + GROWN_AFTER))}/>`;
+    if (plant.stage === "small") {
+      plants.push([order, sprout + `<use href="#small" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER))}/>`]);
+      return;
+    }
+    const c = cropAt(i);
+    const id = `${plant.stage}-${c}-${plant.stem}`;
+    usedSprites.add(id);
+    const h = spriteHeight(cropRows(c, plant.stage, plant.stem));
+    const py = y + CELL - h;
+    let g = `<use href="#${id}" x="${x}" y="${py}"/>`;
+    if (plant.golden) {
+      const delay = (hash(i) * 2).toFixed(2);
+      g += `<use href="#sparkle" x="${x + 10}" y="${py - 1}" class="tw" style="animation-delay:${delay}s"/>`;
+    }
+    plants.push([order, sprout + `<g ${anim(on(t + GROWN_AFTER))}>${g}</g>`]);
   });
+  plants.sort((p1, p2) => p1[0] - p2[0]);
+  const field = [...soil, ...plants.map((p) => p[1])];
 
-  // Scarecrow guarding your best day, with a tiny sign.
+  // Scarecrow on the top fence, above the column of your best day, with a tiny sign.
   let scarecrow = "";
   if (stats.bestDay) {
     const i = path.findIndex((_, k) => dayAt(k)?.date === stats.bestDay.date);
     if (i >= 0) {
-      const [w, d] = path[i];
+      const [w] = path[i];
       const cx = cellX(w) + CELL / 2;
-      const feet = cellY(d) + CELL - 1;
+      const feet = GRID_TOP - 4;
       const label = `best: ${stats.bestDay.count}`;
       const lw = label.length * 6 + 8;
+      const toRight = cx + 14 + lw < width - 8;
+      const lx = toRight ? cx + 14 : cx - 14 - lw;
       scarecrow =
         `<g ${anim(on(cellTime[i] + GROWN_AFTER))}>` +
         `<use href="#scarecrow" x="${cx}" y="${feet}"/>` +
-        `<rect x="${cx - lw / 2}" y="${feet - 41}" width="${lw}" height="11" rx="1" fill="#5e3820"/>` +
-        `<rect x="${cx - lw / 2 + 1}" y="${feet - 40}" width="${lw - 2}" height="9" fill="#9a6338"/>` +
-        `<text x="${cx}" y="${feet - 32.5}" class="t4" text-anchor="middle">${escapeXml(label)}</text></g>`;
+        `<rect x="${lx}" y="${feet - 24}" width="${lw}" height="11" rx="1" fill="#5e3820"/>` +
+        `<rect x="${lx + 1}" y="${feet - 23}" width="${lw - 2}" height="9" fill="#9a6338"/>` +
+        `<text x="${lx + lw / 2}" y="${feet - 15.5}" class="t4" text-anchor="middle">${escapeXml(label)}</text></g>`;
     }
   }
 
@@ -464,17 +487,27 @@ export function renderFarm({
   const signW = Math.max(title.length * 9.2, subtitle.length * 6.7, statsLine.length * 6.7) + 24;
 
   // Legend (right side of header)
-  const legendItems = ["soil", "sprout", "small", `grown-${mainCrop}`, `harvest-${mainCrop}`];
-  const legendW = legendItems.length * PITCH - GAP;
+  // Legend: the same plant at growing heights, from a sprout to the golden harvest.
+  const legendSteps = [
+    ["sprout", 0], ["small", 0], ["grown", 0], ["grown", 3], ["harvest", STEM_MAX],
+  ];
+  const legendW = legendSteps.length * PITCH - GAP;
   const legendX = width - MARGIN_X - legendW - 34;
-  const legendY = 22;
+  const legendY = 40;
   const legend =
     `<text x="${legendX - 8}" y="${legendY + 12}" class="lg" text-anchor="end">less</text>` +
-    legendItems
-      .map((id, k) => {
+    legendSteps
+      .map(([stage, stem], k) => {
         const lx = legendX + k * PITCH;
-        const under = id === "soil" ? "" : `<use href="#soil" x="${lx}" y="${legendY}"/>`;
-        return `${under}<use href="#${id}" x="${lx}" y="${legendY}"/>`;
+        let sprite = `<use href="#${stage}" x="${lx}" y="${legendY}"/>`;
+        if (stage === "grown" || stage === "harvest") {
+          const id = `${stage}-${mainCrop}-${stem}`;
+          usedSprites.add(id);
+          const ly = legendY + CELL - spriteHeight(cropRows(mainCrop, stage, stem));
+          sprite = `<use href="#${id}" x="${lx}" y="${ly}"/>`;
+          if (stage === "harvest") sprite += `<use href="#sparkle" x="${lx + 10}" y="${ly - 1}"/>`;
+        }
+        return `<use href="#soil" x="${lx}" y="${legendY}"/>${sprite}`;
       })
       .join("") +
     `<text x="${legendX + legendW + 8}" y="${legendY + 12}" class="lg">more</text>`;
@@ -493,13 +526,13 @@ export function renderFarm({
   // --- Sprites -----------------------------------------------------------------
   def("grass", TILE_GRASS);
   def("soil", TILE_SOIL);
+  def("gold", TILE_GOLD);
   def("sprout", SPROUT);
   def("small", SMALL);
-  for (const { crop: c } of crops) {
-    def(`grown-${c}`, CROPS[c].grown);
-    def(`harvest-${c}`, CROPS[c].harvest);
+  for (const id of usedSprites) {
+    const [stage, c, stem] = id.split("-");
+    def(id, cropRows(c, stage, Number(stem)));
   }
-  def("weed", WEED);
   def("sparkle", SPARKLE);
   def("farmerA", FARMER_A);
   def("farmerB", FARMER_B);

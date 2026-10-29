@@ -81,6 +81,18 @@ export const TILE_GRASS = [
   ".gggggg.",
 ];
 
+// Soil of your best day of the year: straw and sunlight on the furrows.
+export const TILE_GOLD = [
+  ".jJJJJj.",
+  "JJjJJJjJ",
+  "jjjjjjjj",
+  "JJJJJJJJ",
+  "jJJjJJJj",
+  "jjjjjjjj",
+  "JJjJJJjJ",
+  ".jJJJJj.",
+];
+
 export const TILE_SOIL = [
   ".SSSSSS.",
   "ssssssss",
@@ -113,18 +125,6 @@ export const SMALL = [
   ".lLLLl..",
   "...LL...",
   "...DD...",
-];
-
-// Grows on days without commits, every now and then.
-export const WEED = [
-  "........",
-  "........",
-  "........",
-  "........",
-  "......q.",
-  ".q..q.G.",
-  "..GqGG..",
-  "...GG...",
 ];
 
 export const SPARKLE = [
