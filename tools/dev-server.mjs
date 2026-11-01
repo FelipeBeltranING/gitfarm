@@ -6,6 +6,7 @@ import handler from "../api/farm.js";
 
 const PORT = Number(process.env.PORT ?? 3000);
 const page = new URL("../public/index.html", import.meta.url);
+const app = new URL("../public/app.js", import.meta.url);
 
 createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
@@ -13,6 +14,10 @@ createServer(async (req, res) => {
   if (url.pathname === "/" || url.pathname === "/index.html") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     return res.end(await readFile(page));
+  }
+  if (url.pathname === "/app.js") {
+    res.setHeader("Content-Type", "text/javascript; charset=utf-8");
+    return res.end(await readFile(app));
   }
   res.statusCode = 404;
   res.end("Not found");
