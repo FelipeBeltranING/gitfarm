@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GitFarm · your contribution graph, but it's a farm</title>
-<meta name="description" content="A pixel-art farmer plants your GitHub contributions. Type your username, get a farm for your README.">
+<title data-i18n="title">GitFarm · your contribution graph, but it's a farm</title>
+<meta name="description" data-i18n-content="description" content="A pixel-art farmer plants your GitHub contributions. Type your username, get a farm for your README.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🌻</text></svg>">
 <style>
   :root {
@@ -64,79 +64,79 @@
 <main>
   <section class="board">
     <h1>🌻 GitFarm</h1>
-    <p class="tagline">Your contribution graph, but it's a farm. A pixel-art farmer plants every commit.</p>
+    <p class="tagline" data-i18n="tagline">Your contribution graph, but it's a farm. A pixel-art farmer plants every commit.</p>
 
     <form id="form">
-      <label class="user">GitHub username
+      <label class="user"><span data-i18n="username">GitHub username</span>
         <input id="user" type="text" placeholder="octocat" autocomplete="off" spellcheck="false" required>
       </label>
-      <label>Crops
+      <label><span data-i18n="crops">Crops</span>
         <select id="crop">
-          <option value="auto">auto ✨</option> 
-          <option value="corn">🌽 corn</option>
-          <option value="sunflower">🌻 sunflower</option>
-          <option value="tomato">🍅 tomato</option>
-          <option value="coffee">☕ coffee</option>
-          <option value="wheat">🌾 wheat</option>
-          <option value="strawberry">🍓 strawberry</option>
-          <option value="pumpkin">🎃 pumpkin</option>
-          <option value="cacao">🍫 cacao</option>
-          <option value="carrot">🥕 carrot</option>
-          <option value="rice">🍚 rice</option>
-          <option value="avocado">🥑 avocado</option>
+          <option value="auto" data-i18n="opt_crop_auto">auto ✨</option> 
+          <option value="corn" data-i18n="opt_crop_corn">🌽 corn</option>
+          <option value="sunflower" data-i18n="opt_crop_sunflower">🌻 sunflower</option>
+          <option value="tomato" data-i18n="opt_crop_tomato">🍅 tomato</option>
+          <option value="coffee" data-i18n="opt_crop_coffee">☕ coffee</option>
+          <option value="wheat" data-i18n="opt_crop_wheat">🌾 wheat</option>
+          <option value="strawberry" data-i18n="opt_crop_strawberry">🍓 strawberry</option>
+          <option value="pumpkin" data-i18n="opt_crop_pumpkin">🎃 pumpkin</option>
+          <option value="cacao" data-i18n="opt_crop_cacao">🍫 cacao</option>
+          <option value="carrot" data-i18n="opt_crop_carrot">🥕 carrot</option>
+          <option value="rice" data-i18n="opt_crop_rice">🍚 rice</option>
+          <option value="avocado" data-i18n="opt_crop_avocado">🥑 avocado</option>
         </select>
       </label>
-      <label>Season
+      <label><span data-i18n="season">Season</span>
         <select id="season">
-          <option value="none">none</option>
-          <option value="auto">auto (north)</option>
-          <option value="auto-south">auto (south)</option>
-          <option value="spring">🌸 spring</option>
-          <option value="summer">☀️ summer</option>
-          <option value="autumn">🍂 autumn</option>
-          <option value="winter">❄️ winter</option>
-          <option value="rainy">🌧️ rainy (tropics)</option>
-          <option value="dry">🌵 dry (tropics)</option>
+          <option value="none" data-i18n="opt_season_none">none</option>
+          <option value="auto" data-i18n="opt_season_auto">auto (north)</option>
+          <option value="auto-south" data-i18n="opt_season_auto-south">auto (south)</option>
+          <option value="spring" data-i18n="opt_season_spring">🌸 spring</option>
+          <option value="summer" data-i18n="opt_season_summer">☀️ summer</option>
+          <option value="autumn" data-i18n="opt_season_autumn">🍂 autumn</option>
+          <option value="winter" data-i18n="opt_season_winter">❄️ winter</option>
+          <option value="rainy" data-i18n="opt_season_rainy">🌧️ rainy (tropics)</option>
+          <option value="dry" data-i18n="opt_season_dry">🌵 dry (tropics)</option>
         </select>
       </label>
-      <label>Time
+      <label><span data-i18n="time">Time</span>
         <select id="time">
-          <option value="auto">auto ✨</option>
-          <option value="day">☀️ day</option>
-          <option value="night">🌙 night</option>
+          <option value="auto" data-i18n="opt_time_auto">auto ✨</option>
+          <option value="day" data-i18n="opt_time_day">☀️ day</option>
+          <option value="night" data-i18n="opt_time_night">🌙 night</option>
         </select>
       </label>
-      <label class="check"><input id="weather" type="checkbox" checked> weather</label>
+      <label class="check"><input id="weather" type="checkbox" checked> <span data-i18n="weather">weather</span></label>
       <details>
-        <summary>🧑‍🌾 Dress your farmer</summary>
+        <summary data-i18n="dress">🧑‍🌾 Dress your farmer</summary>
         <div class="colors">
-          <label>Hat <input id="hat" type="color" value="#efc96d"></label>
-          <label>Shirt <input id="shirt" type="color" value="#d9473b"></label>
-          <label>Overalls <input id="overalls" type="color" value="#3d72bd"></label>
+          <label><span data-i18n="hat">Hat</span> <input id="hat" type="color" value="#efc96d"></label>
+          <label><span data-i18n="shirt">Shirt</span> <input id="shirt" type="color" value="#d9473b"></label>
+          <label><span data-i18n="overalls">Overalls</span> <input id="overalls" type="color" value="#3d72bd"></label>
         </div>
       </details>
-      <button type="submit">🌱 Plant my farm</button>
+      <button type="submit" data-i18n="plant">🌱 Plant my farm</button>
     </form>
   </section>
 
   <div class="preview">
-    <img id="farm" src="api/farm?demo=1&streak=100" alt="GitFarm preview" width="1008" height="262">
-    <p class="status" id="status" role="status" aria-live="polite">This is a demo farm. Type your username to plant yours!</p>
+    <img id="farm" src="api/farm?demo=1&streak=100" data-i18n-alt="previewAlt" alt="GitFarm preview" width="1008" height="262">
+    <p class="status" id="status" role="status" aria-live="polite" data-i18n="demoStatus">This is a demo farm. Type your username to plant yours!</p>
   </div>
 
   <section class="board snippet">
-    <h2>📋 Paste this in your README</h2>
-    <div class="code"><code id="snippet">![My GitHub farm](…)</code><button type="button" id="copy">Copy</button><button type="button" id="download" disabled>Download SVG</button></div>
+    <h2 data-i18n="pasteTitle">📋 Paste this in your README</h2>
+    <div class="code"><code id="snippet">![My GitHub farm](…)</code><button type="button" id="copy" data-i18n="copy">Copy</button><button type="button" id="download" data-i18n="download" disabled>Download SVG</button></div>
   </section>
 
   <section class="board howto">
-    <h2>🚜 Prefer a GitHub Action?</h2>
-    <p>Generate the farm in your own profile repo every day, with no external service:
-      see the <a href="https://github.com/FelipeBeltranING/gitfarm#plant-your-own-farm-2-minutes">setup guide</a>.</p>
-    <p>Animals unlock with your longest streak: 🐔 7 days · 🐄 30 days · 🐕 100 days.</p>
+    <h2 data-i18n="actionTitle">🚜 Prefer a GitHub Action?</h2>
+    <p><span data-i18n="actionText">Generate the farm in your own profile repo every day, with no external service:
+      see the</span> <a href="https://github.com/FelipeBeltranING/gitfarm#plant-your-own-farm-2-minutes" data-i18n="setupGuide">setup guide</a>.</p>
+    <p data-i18n="animals">Animals unlock with your longest streak: 🐔 7 days · 🐄 30 days · 🐕 100 days.</p>
   </section>
 
-  <footer>Made with 🌱 by <a href="https://github.com/FelipeBeltranING">FelipeBeltranING</a> · <a href="https://github.com/FelipeBeltranING/gitfarm">⭐ Star on GitHub</a></footer>
+  <footer><span data-i18n="madeBy">Made with 🌱 by</span> <a href="https://github.com/FelipeBeltranING">FelipeBeltranING</a> · <a href="https://github.com/FelipeBeltranING/gitfarm" data-i18n="star">⭐ Star on GitHub</a></footer>
 </main>
 
 <script type="module" src="app.js"></script>

@@ -360,3 +360,60 @@ test("the Copy button falls back when the clipboard is unavailable", async () =>
   timers.at(-1).fn();
   assert.equal(els.copy.textContent, "Copy");
 });
+
+test("pickLanguage uses Spanish for any es* locale and English otherwise", async () => {
+  const { pickLanguage } = await import("../public/app.js");
+  for (const lang of ["es", "es-MX", "es_CO", "ES-ar"]) assert.equal(pickLanguage(lang), "es");
+  for (const lang of ["en-US", "fr", "est", "", undefined, null]) assert.equal(pickLanguage(lang), "en");
+});
+
+test("every data-i18n key in index.html exists in both languages", async () => {
+  const { TEXTS } = await import("../public/app.js");
+  const html = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
+  const keys = [...html.matchAll(/data-i18n(?:-alt|-content)?="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(keys.length > 30);
+  for (const key of keys) {
+    assert.ok(TEXTS.en[key], `en is missing ${key}`);
+    assert.ok(TEXTS.es[key], `es is missing ${key}`);
+  }
+  assert.deepEqual(Object.keys(TEXTS.es).sort(), Object.keys(TEXTS.en).sort());
+});
+
+test("a Spanish browser gets Spanish page text and status messages", async () => {
+  const { TEXTS } = await import("../public/app.js");
+  const tagged = [
+    Object.assign(new FakeElement("a"), { attrs: { "data-i18n": "tagline" } }),
+    Object.assign(new FakeElement("b"), { attrs: { "data-i18n": "opt_season_auto-south" } }),
+    Object.assign(new FakeElement("c"), { attrs: { "data-i18n": "missing-key" }, textContent: "keep" }),
+  ];
+  for (const el of tagged) el.getAttribute = (name) => el.attrs[name];
+  const ids = ["form", "user", "crop", "season", "time", "weather", "hat", "shirt", "overalls",
+    "farm", "status", "snippet", "copy", "download"];
+  const els = Object.fromEntries(ids.map((id) => [id, new FakeElement(id)]));
+  Object.assign(els.crop, { value: "auto" });
+  Object.assign(els.season, { value: "none" });
+  Object.assign(els.time, { value: "auto" });
+  els.weather.checked = true;
+  els.hat.value = DEFAULTS.hat;
+  els.shirt.value = DEFAULTS.shirt;
+  els.overalls.value = DEFAULTS.overalls;
+  const documentElement = { lang: "en" };
+  createFarmApp({
+    document: {
+      getElementById: (id) => els[id],
+      querySelectorAll: (selector) => (selector === "[data-i18n]" ? tagged : []),
+      documentElement,
+    },
+    location: { href: "https://gitfarm.test/", search: "" },
+    history: { replaceState() {} },
+    fetch: () => new Promise(() => {}),
+    navigator: { language: "es-MX" },
+  });
+  assert.equal(documentElement.lang, "es");
+  assert.equal(tagged[0].textContent, TEXTS.es.tagline);
+  assert.equal(tagged[1].textContent, TEXTS.es["opt_season_auto-south"]);
+  assert.equal(tagged[2].textContent, "keep");
+  assert.match(els.snippet.textContent, /tu-usuario/);
+  els.form.requestSubmit();
+  assert.equal(els.status.textContent, TEXTS.es.empty);
+});
