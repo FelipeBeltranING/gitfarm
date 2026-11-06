@@ -77,6 +77,7 @@ Longest streak, not current: breaking your streak never takes your animals away.
 - 🐦 **Birds** visit the fence, a different flock every day: they peck, hop and look around, flee when the farmer gets close, and some land again behind him.
 - 🐱 **A cat** naps on the barn roof while your current streak is 3 days or more.
 - 🚿 **Watering:** the farmer stops on your full-harvest days (up to 12) and waters them.
+- ♿ **Reduce motion:** if your OS asks for less motion, the farm is shown finished and standing still.
 
 ## Seasons, weather and time of day
 

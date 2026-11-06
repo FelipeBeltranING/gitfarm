@@ -144,3 +144,22 @@ test("perched birds swap between two frames (normal and pecking), never one alon
   const svg = render();
   assert.equal((svg.match(/href="#birdP" class="bpA"/g) ?? []).length, (svg.match(/href="#birdK" class="bpB"/g) ?? []).length);
 });
+
+test("reduced motion stops the animation and shows the finished farm", () => {
+  const svg = renderFarm({ user: "octocat", total: 1000, weeks: demoCalendar(7).weeks, crop: "corn", streak: 100 });
+  const still = svg.match(/@media \(prefers-reduced-motion:reduce\)\{([\s\S]*?)\n\}/)?.[1];
+  assert.ok(still, "the media query is in the SVG");
+  assert.match(still, /\*\{animation:none!important\}/);
+  assert.match(still, /\.a\[style\*="name:o"\]/, "plots that stay show up");
+
+  // Moving things have no position without their keyframes, so each needs a still one.
+  for (const name of ["farmer", "dog", "cow", "chk0", "chk1", "chk2"]) {
+    assert.match(svg, new RegExp(`class="${name}"`), `${name} is on the farm`);
+    assert.match(still, new RegExp(`\\.${name}\\{transform:translate\\(`), `${name} has a still position`);
+  }
+
+  // Everything else that moves along a keyframe path starts hidden, so it can't get stuck in a corner.
+  const birds = [...svg.matchAll(/<g class="bird"[^>]*><g[^>]*><g ([^>]*)>/g)];
+  assert.ok(birds.length > 0);
+  for (const [, attrs] of birds) assert.match(attrs, /opacity:0/);
+});
