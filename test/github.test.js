@@ -29,5 +29,29 @@ test("scrapes the public contributions calendar without a token", async (t) => {
 
 test("reports a clear error when the user does not exist", async (t) => {
   t.mock.method(globalThis, "fetch", async () => ({ ok: false, status: 404, text: async () => "" }));
-  await assert.rejects(fetchCalendar("nobody-here"), /HTTP 404/);
+  await assert.rejects(fetchCalendar("nobody-here"), /user "nobody-here" not found/);
+});
+
+test("GraphQL also reports an unknown user clearly", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ data: { user: null }, errors: [{ type: "NOT_FOUND", message: "Could not resolve to a User" }] }),
+  }));
+  await assert.rejects(fetchCalendar("nobody-here", "token"), /^Error: GitHub user "nobody-here" not found\.$/);
+});
+
+test("an HTML error page from GitHub gives the status, not a JSON parse error", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => ({
+    ok: false,
+    status: 502,
+    json: async () => { throw new SyntaxError("Unexpected token <"); },
+  }));
+  await assert.rejects(fetchCalendar("octocat", "token"), /502/);
+});
+
+test("requests give up on their own if GitHub stalls", async (t) => {
+  const fetchMock = t.mock.method(globalThis, "fetch", async () => ({ ok: false, status: 500 }));
+  await assert.rejects(fetchCalendar("octocat"));
+  assert.ok(fetchMock.mock.calls[0].arguments[1].signal instanceof AbortSignal);
 });

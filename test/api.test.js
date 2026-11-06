@@ -40,6 +40,35 @@ test("bad options become an error image instead of a crash", async () => {
   assert.match(r.body, /data-gitfarm-error/);
 });
 
+test("error images stay valid XML wherever the message is cut", async () => {
+  // A quote lands on the 90-character cut at some length; its entity must not be split.
+  for (let n = 0; n < 90; n++) {
+    const r = await call({ demo: "1", crop: `${"a".repeat(n)}"` });
+    assert.doesNotMatch(r.body, /&(?!#\d+;|amp;|lt;|gt;|quot;)/, `crop of length ${n + 1}`);
+  }
+});
+
+test("an invalid streak becomes an error image", async () => {
+  const r = await call({ demo: "1", streak: "abc" });
+  assert.match(r.body, /Invalid streak/);
+  assert.match(r.body, /data-gitfarm-error/);
+});
+
+test("a farm built while rate limited is not cached for hours", async (t) => {
+  const token = process.env.GITHUB_TOKEN;
+  delete process.env.GITHUB_TOKEN;
+  t.after(() => { if (token !== undefined) process.env.GITHUB_TOKEN = token; });
+  const html = '<td data-date="2026-01-04" id="d" data-level="1" class="ContributionCalendar-day"></td>';
+  t.mock.method(globalThis, "fetch", async (url) => (String(url).startsWith("https://github.com/")
+    ? { ok: true, status: 200, text: async () => html }
+    : { ok: false, status: 403 }));
+
+  const r = await call({ user: "octocat" });
+  assert.match(r.body, /^<svg/);
+  assert.doesNotMatch(r.body, /data-gitfarm-error/);
+  assert.equal(r.headers["cache-control"], "public, max-age=300");
+});
+
 test("recorder reads the loop length from the SVG", () => {
   assert.equal(loopDuration('<style>.a{opacity:0;animation-duration:30.40s;}</style>'), 30.4);
   assert.equal(loopDuration("<svg/>"), 30);

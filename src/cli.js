@@ -6,6 +6,8 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (!a.startsWith("--")) continue;
+    const eq = a.indexOf("=");
+    if (eq > 0) { args[a.slice(2, eq)] = a.slice(eq + 1); continue; }
     const key = a.slice(2);
     const next = argv[i + 1];
     if (next === undefined || next.startsWith("--")) args[key] = true;

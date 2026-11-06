@@ -510,12 +510,12 @@ export function renderFarm({
 
   // --- Header ----------------------------------------------------------------
   const title = `${user}'s farm`;
-  const cropNames = crops.map((c) => (c.language ? `${CROPS[c.crop].name} (${c.language})` : CROPS[c.crop].name));
-  const cropLabel = cropNames.length > 1 ? `${cropNames.slice(0, -1).join(", ")} & ${cropNames.at(-1)}` : cropNames[0];
-  const subtitle = `${plural(total, "contribution")} in the last year · growing ${cropLabel}`;
+  const subtitleFor = (names) => `${plural(total, "contribution")} in the last year · growing ` +
+    (names.length > 1 ? `${names.slice(0, -1).join(", ")} & ${names.at(-1)}` : names[0]);
+  const fullSubtitle = subtitleFor(crops.map((c) => (c.language ? `${CROPS[c.crop].name} (${c.language})` : CROPS[c.crop].name)));
   const statsLine = `current streak: ${plural(currentStreak, "day")}` +
     (stats.bestDay ? ` · best day: ${shortDate(stats.bestDay.date)} (${stats.bestDay.count})` : "");
-  const signW = Math.max(title.length * 9.2, subtitle.length * 6.7, statsLine.length * 6.7) + 24;
+  const signFor = (text) => Math.max(title.length * 9.2, text.length * 6.7, statsLine.length * 6.7) + 24;
 
   // Legend (right side of header)
   // Legend: the same plant at growing heights, from a sprout to the golden harvest.
@@ -525,6 +525,12 @@ export function renderFarm({
   const legendW = legendSteps.length * PITCH - GAP;
   const legendX = width - MARGIN_X - legendW - 34;
   const legendY = 40;
+
+  // Long language names would run the sign into the legend ("less" starts ~35px left of it).
+  const subtitle = 12 + signFor(fullSubtitle) + 8 <= legendX - 35
+    ? fullSubtitle
+    : subtitleFor(crops.map((c) => CROPS[c.crop].name));
+  const signW = signFor(subtitle);
   const legend =
     `<text x="${legendX - 8}" y="${legendY + 12}" class="lg" text-anchor="end">less</text>` +
     legendSteps
@@ -631,7 +637,7 @@ ${dogMoves ? `@keyframes dogrun{${dogMoves}}` : ""}
 ${extraCss.join("\n")}
 ${[...keyframes.values()].join("\n")}`;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" shape-rendering="crispEdges" role="img" aria-label="${escapeXml(`${title}: ${subtitle}. ${statsLine}`)}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" shape-rendering="crispEdges" role="img" aria-label="${escapeXml(`${title}: ${fullSubtitle}. ${statsLine}`)}">
 <title>${escapeXml(title)}</title>
 <style>${css}</style>
 <defs>
