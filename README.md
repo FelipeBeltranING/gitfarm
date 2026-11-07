@@ -218,7 +218,7 @@ and the whole field fades and replants in a loop.
 
 ## Ideas / roadmap
 
-See the [issues](../../issues) for what's planned next. More crops and animals are always welcome!
+See the [issues](../../issues) for what's planned next, and [What to work on](CONTRIBUTING.md#what-to-work-on) for more ideas up for grabs. More crops and animals are always welcome!
 
 ## License
 
