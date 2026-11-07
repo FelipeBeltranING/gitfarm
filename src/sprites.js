@@ -568,6 +568,24 @@ export const PUDDLE = [
   "........",
 ];
 
+export const DUCK_A = [
+  ".....YY.",
+  ".....YkO",
+  "Y....YY.",
+  "YYYYYYY.",
+  "yYYYYYy.",
+  ".vzvvzv.",
+];
+
+export const DUCK_B = [
+  "Y.......",
+  "YY......",
+  "yYYY....",
+  ".yYYYY..",
+  "..yYYYv.",
+  ".vzvvzv.",
+];
+
 export const FLOWER = [
   ".f.",
   "fYf",

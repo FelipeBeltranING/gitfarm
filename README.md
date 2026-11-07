@@ -89,7 +89,7 @@ Longest streak, not current: breaking your streak never takes your animals away.
 | `timezone` | `UTC` (default) or any IANA zone, e.g. `America/Bogota` | Used by `time: auto` |
 | `weather` | `true` (default) / `false` | Cloud shadows drifting over the field and the occasional shower |
 
-Living in the tropics? `rainy` and `dry` are made for you 🌴
+Living in the tropics? `rainy` and `dry` are made for you 🌴 (ducks included in the rainy one 🦆)
 
 ## Dress your farmer
 
