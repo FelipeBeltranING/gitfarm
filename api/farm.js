@@ -6,8 +6,10 @@ import { buildFarm, parseBool } from "../src/farm.js";
 const USERNAME = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
 
 function errorSvg(message) {
-  const safe = String(message).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`).slice(0, 90);
-  const w = Math.max(300, safe.length * 7 + 40);
+  // Cut before escaping: cutting after could split an entity and make the whole SVG invalid.
+  const text = String(message).slice(0, 90);
+  const safe = text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+  const w = Math.max(300, text.length * 7 + 40);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} 60" width="${w}" height="60" data-gitfarm-error="true">` +
     `<rect width="${w}" height="60" rx="8" fill="#3d7530"/><rect x="10" y="10" width="${w - 20}" height="40" rx="3" fill="#5e3820"/>` +
     `<rect x="12" y="12" width="${w - 24}" height="36" rx="2" fill="#9a6338"/>` +
@@ -31,7 +33,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { svg } = await buildFarm({
+    const { svg, partial } = await buildFarm({
       user: user || "octocat",
       token: process.env.GITHUB_TOKEN,
       demo: demo ? 7 : false,
@@ -44,9 +46,10 @@ export default async function handler(req, res) {
       streak: demo && q.streak ? Number(q.streak) : undefined,
     });
     // Contributions change during the day; refresh every few hours, serve stale while revalidating.
-    return send(res, 200, svg, "public, max-age=3600, s-maxage=14400, stale-while-revalidate=86400");
+    // A farm built without some data (e.g. rate limited) is retried soon instead of sticking for hours.
+    return send(res, 200, svg, partial ? "public, max-age=300" : "public, max-age=3600, s-maxage=14400, stale-while-revalidate=86400");
   } catch (e) {
-    const message = /fetch failed|ENOTFOUND|ETIMEDOUT/i.test(e.message) ? "Could not reach GitHub, try again in a minute" : e.message;
+    const message = /fetch failed|ENOTFOUND|ETIMEDOUT|timeout/i.test(e.message) ? "Could not reach GitHub, try again in a minute" : e.message;
     return send(res, 200, errorSvg(message), "public, max-age=300");
   }
 }

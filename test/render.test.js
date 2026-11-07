@@ -140,6 +140,23 @@ test("a cat naps on the barn roof while the current streak is 3+ days", () => {
   assert.match(render({ streak: 3 }), /href="#cat"/);
 });
 
+test("long language names don't run the sign into the legend", () => {
+  const farm = (language) => renderFarm({
+    user: "octocat", total: 123456, weeks: demoCalendar(7).weeks,
+    crops: [
+      { crop: "corn", share: 0.4, language },
+      { crop: "strawberry", share: 0.3, language: "Objective-C" },
+      { crop: "sunflower", share: 0.3, language: "TypeScript" },
+    ],
+  });
+  const shown = (svg) => svg.match(/class="t2">([^<]*growing[^<]*)</)[1];
+
+  assert.match(shown(farm("R")), /corn \(R\), strawberry \(Objective-C\)/);
+  const long = farm("Jupyter Notebook");
+  assert.match(shown(long), /growing corn, strawberry &amp; sunflower$/);
+  assert.match(long, /aria-label="[^"]*corn \(Jupyter Notebook\)/, "screen readers keep the languages");
+});
+
 test("perched birds swap between two frames (normal and pecking), never one alone", () => {
   const svg = render();
   assert.equal((svg.match(/href="#birdP" class="bpA"/g) ?? []).length, (svg.match(/href="#birdK" class="bpB"/g) ?? []).length);

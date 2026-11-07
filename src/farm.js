@@ -20,18 +20,26 @@ export async function buildFarm({
     calendar = await fetchCalendar(user, token);
   }
 
+  if (!TIMES.includes(time)) throw new Error(`Unknown time "${time}". Choose one of: ${TIMES.join(", ")}`);
+  if (streak !== undefined && !(Number.isInteger(streak) && streak >= 0)) {
+    throw new Error("Invalid streak. Use a whole number of days.");
+  }
+
+  // Crops and night mode are extras: a failed lookup falls back to defaults, flagged as partial.
+  let partial = false;
+  const optional = (promise) => promise.catch(() => { partial = true; return []; });
+  const pickCrops = !demo && !language && (!crop || crop === "auto");
+  const [languages, activity] = await Promise.all([
+    pickCrops ? optional(fetchLanguages(user, token)) : [],
+    !demo && time === "auto" ? optional(fetchActivityTimestamps(user, token)) : [],
+  ]);
+
   let crops;
   if (crop && crop !== "auto") crops = parseCropList(crop);
   else if (language) crops = mixCrops([{ language, share: 1 }]);
-  else if (!demo) crops = mixCrops(await fetchLanguages(user, token).catch(() => []));
-  else crops = mixCrops([]);
+  else crops = mixCrops(languages);
 
-  if (!TIMES.includes(time)) throw new Error(`Unknown time "${time}". Choose one of: ${TIMES.join(", ")}`);
-  let finalTime = time;
-  if (time === "auto") {
-    const activity = demo ? [] : await fetchActivityTimestamps(user, token).catch(() => []);
-    finalTime = timeOfDayFromActivity(activity, timezone);
-  }
+  const finalTime = time === "auto" ? timeOfDayFromActivity(activity, timezone) : time;
 
   const svg = renderFarm({
     user: user || "octocat",
@@ -45,7 +53,7 @@ export async function buildFarm({
     farmer,
     date,
   });
-  return { svg, crops: crops.map((c) => c.crop), time: finalTime, total: calendar.total };
+  return { svg, crops: crops.map((c) => c.crop), time: finalTime, total: calendar.total, partial };
 }
 
 /** "false", "no", "0", "off" → false. */

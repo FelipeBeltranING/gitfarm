@@ -2,14 +2,18 @@ import { withLevels } from "./demo.js";
 
 const LEVELS = { NONE: 0, FIRST_QUARTILE: 1, SECOND_QUARTILE: 2, THIRD_QUARTILE: 3, FOURTH_QUARTILE: 4 };
 const UA = { "User-Agent": "gitfarm" };
+const TIMEOUT_MS = 8000; // a stalled request must fail before the serverless function is killed (20 s)
+
+const request = (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) });
 
 async function graphql(query, variables, token) {
-  const res = await fetch("https://api.github.com/graphql", {
+  const res = await request("https://api.github.com/graphql", {
     method: "POST",
     headers: { ...UA, Authorization: `bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ query, variables }),
   });
-  const json = await res.json();
+  const json = await res.json().catch(() => ({})); // outages answer with HTML
+  if (json.errors?.some((e) => e.type === "NOT_FOUND")) throw new Error(`GitHub user "${variables.login}" not found.`);
   if (!res.ok || json.errors) {
     throw new Error(`GitHub GraphQL error: ${JSON.stringify(json.errors ?? json.message ?? res.status)}`);
   }
@@ -41,7 +45,8 @@ export async function fetchCalendar(user, token) {
 
 // Token-free fallback: the public contributions fragment GitHub renders on profiles.
 async function scrapeCalendar(user) {
-  const res = await fetch(`https://github.com/users/${encodeURIComponent(user)}/contributions`, { headers: UA });
+  const res = await request(`https://github.com/users/${encodeURIComponent(user)}/contributions`, { headers: UA });
+  if (res.status === 404) throw new Error(`GitHub user "${user}" not found.`);
   if (!res.ok) throw new Error(`Could not load contributions for "${user}" (HTTP ${res.status}).`);
   const html = await res.text();
 
@@ -96,8 +101,8 @@ export async function fetchLanguages(user, token) {
       for (const e of repo.languages.edges) tally.set(e.node.name, (tally.get(e.node.name) ?? 0) + e.size);
     }
   } else {
-    const res = await fetch(`https://api.github.com/users/${encodeURIComponent(user)}/repos?per_page=100&sort=pushed`, { headers: UA });
-    if (!res.ok) return [];
+    const res = await request(`https://api.github.com/users/${encodeURIComponent(user)}/repos?per_page=100&sort=pushed`, { headers: UA });
+    if (!res.ok) throw new Error(`Could not load repositories for "${user}" (HTTP ${res.status}).`);
     for (const repo of await res.json()) {
       if (!repo.fork && repo.language) tally.set(repo.language, (tally.get(repo.language) ?? 0) + 1);
     }
@@ -118,8 +123,11 @@ export async function fetchActivityTimestamps(user, token) {
   const headers = token ? { ...UA, Authorization: `bearer ${token}` } : UA;
   const stamps = [];
   for (let page = 1; page <= 3; page++) {
-    const res = await fetch(`https://api.github.com/users/${encodeURIComponent(user)}/events/public?per_page=100&page=${page}`, { headers });
-    if (!res.ok) break;
+    const res = await request(`https://api.github.com/users/${encodeURIComponent(user)}/events/public?per_page=100&page=${page}`, { headers });
+    if (!res.ok) {
+      if (page === 1) throw new Error(`Could not load activity for "${user}" (HTTP ${res.status}).`);
+      break;
+    }
     const events = await res.json();
     for (const e of events) {
       if (e.type === "PushEvent" || e.type === "PullRequestEvent" || e.type === "CreateEvent") stamps.push(e.created_at);
