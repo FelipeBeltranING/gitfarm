@@ -99,7 +99,7 @@ function wander({ name, seed, minX, maxX, y, speed, pause, minDuration }) {
   const frames = pts
     .map(([pt, px, pf]) => `${((pt / t) * 100).toFixed(3)}%{transform:translate(${px.toFixed(1)}px,${y}px) scaleX(${pf})}`)
     .join("");
-  return { css: `@keyframes ${name}{${frames}}`, duration: t };
+  return { css: `@keyframes ${name}{${frames}}`, duration: t, home: x0 };
 }
 
 const plural = (n, word) => `${n.toLocaleString("en-US")} ${word}${n === 1 ? "" : "s"}`;
@@ -208,6 +208,7 @@ export function renderFarm({
   const T = countStart + HOLD + FADE;
   const pct = (t) => `${((t / T) * 100).toFixed(3)}%`;
   const extraCss = [];
+  const stillCss = []; // where things stand when animations are off (prefers-reduced-motion)
 
   // Keyframes are generated per distinct timestamp and shared between elements.
   const keyframes = new Map();
@@ -335,6 +336,7 @@ export function renderFarm({
     .map(([t, x, y]) => `${pct(t)}{transform:translate(${x}px,${y}px)}`)
     .join("") + `100%{transform:translate(${pts.at(-1)[1]}px,${pts.at(-1)[2]}px)}`;
   const moves = toFrames(farmerPts);
+  stillCss.push(`.farmer{transform:translate(${exitX}px,${fy(ld)}px)}`);
 
   // The dog (100-day streak) trots behind the farmer, feet on the same plot.
   // Farmer sprite is 24x32 and dog 20x14, both anchored by their feet.
@@ -345,6 +347,8 @@ export function renderFarm({
       [walkEnd + EXIT + DOG_LAG, exitX - 18, fy(ld) + 18],
     ])
     : "";
+
+  if (animals.dog) stillCss.push(`.dog{transform:translate(${exitX - 18}px,${fy(ld) + 18}px)}`);
 
   // Harvest counter: a speech bubble above the farmer that ticks up to the total.
   const bubbleW = Math.max(56, `+${total.toLocaleString("en-US")}`.length * 9 + 18);
@@ -415,13 +419,15 @@ export function renderFarm({
   if (animals.cow) {
     const cow = wander({ name: "cow", seed: 3, minX: roamMin, maxX: roamMax, y: floorY, speed: 6, pause: [3, 7], minDuration: 30 });
     extraCss.push(cow.css);
-    pasture.push(`<g style="animation:cow ${cow.duration.toFixed(2)}s linear infinite"><g transform="scale(1.5)"><use href="#cowA" class="ga"/><use href="#cowB" class="gb"/></g></g>`);
+    stillCss.push(`.cow{transform:translate(${cow.home.toFixed(1)}px,${floorY}px)}`);
+    pasture.push(`<g class="cow" style="animation:cow ${cow.duration.toFixed(2)}s linear infinite"><g transform="scale(1.5)"><use href="#cowA" class="ga"/><use href="#cowB" class="gb"/></g></g>`);
   }
   for (let c = 0; c < animals.chickens; c++) {
     const ch = wander({ name: `chk${c}`, seed: 11 + c * 5, minX: roamMin, maxX: roamMax, y: floorY, speed: 22, pause: [0.6, 2.2], minDuration: 14 + c * 3 });
     extraCss.push(ch.css);
+    stillCss.push(`.chk${c}{transform:translate(${ch.home.toFixed(1)}px,${floorY}px)}`);
     const delay = `animation-delay:-${(c * 0.45).toFixed(2)}s`;
-    pasture.push(`<g style="animation:chk${c} ${ch.duration.toFixed(2)}s linear infinite"><use href="#chickenA" class="pa" style="${delay}"/><use href="#chickenB" class="pb" style="${delay}"/></g>`);
+    pasture.push(`<g class="chk${c}" style="animation:chk${c} ${ch.duration.toFixed(2)}s linear infinite"><use href="#chickenA" class="pa" style="${delay}"/><use href="#chickenB" class="pb" style="${delay}"/></g>`);
   }
 
   // --- Season decoration -------------------------------------------------------
@@ -602,6 +608,8 @@ export function renderFarm({
     );
   }
 
+  // Reduced motion shows the finished farm. Plots that stay visible use the `o*` keyframes;
+  // the `w*` ones (sprouts, watering, counter ticks) are temporary, so they stay hidden.
   const css = `
 .a{opacity:0;animation-duration:${T.toFixed(2)}s;animation-iteration-count:infinite;animation-timing-function:step-end}
 .field{animation:fade ${T.toFixed(2)}s linear infinite}
@@ -629,7 +637,13 @@ ${dogMoves ? `@keyframes dogrun{${dogMoves}}` : ""}
 .ct{font:bold 12px ${FONT};fill:#2b1d14}
 .lg{font:bold 11px ${FONT};fill:${night ? "#e9f5d8" : theme.legend}}
 ${extraCss.join("\n")}
-${[...keyframes.values()].join("\n")}`;
+${[...keyframes.values()].join("\n")}
+@media (prefers-reduced-motion:reduce){
+*{animation:none!important}
+.a[style*="name:o"],.tw{opacity:1}
+.fb,.pb,.gb,.cloudA,.cloudB{opacity:0}
+${stillCss.join("\n")}
+}`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" shape-rendering="crispEdges" role="img" aria-label="${escapeXml(`${title}: ${subtitle}. ${statsLine}`)}">
 <title>${escapeXml(title)}</title>

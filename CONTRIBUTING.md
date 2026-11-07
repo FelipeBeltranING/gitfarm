@@ -74,6 +74,9 @@ new, add the rule to `src/stats.js` with a test.
 - **No JavaScript.** GitHub strips scripts from images, so everything is CSS keyframes.
 - **Deterministic.** Use the `hash()` helper instead of `Math.random()`, so the farm doesn't
   change on every run.
+- **Reduced motion.** Under `prefers-reduced-motion` all animations stop and the farm is shown
+  finished. If you animate something new, check how it looks still: anything that moves along a
+  keyframe path needs a position in `stillCss` in `src/render.js`, or it ends up in the corner.
 - **Mind the size.** The SVG is downloaded on every profile view; keep it under ~300 KB.
 
 ## Code style
