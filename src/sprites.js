@@ -574,6 +574,20 @@ export const FLOWER = [
   ".L.",
 ];
 
+export const BUTTERFLY_A = [
+  "ff.ff",
+  "ffkff",
+  ".fkf.",
+  ".f.f.",
+];
+
+export const BUTTERFLY_B = [
+  ".f.f.",
+  ".fkf.",
+  "..k..",
+  ".....",
+];
+
 // --- v2 extras: birds on the fence, a cat on the barn ----------------------
 export const BIRD_PERCHED = [
   "...UU.",
