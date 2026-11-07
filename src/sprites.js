@@ -435,6 +435,28 @@ export const COW_B = [ // grazing
   ".k.k..k.k.n.",
 ];
 
+export const SHEEP_A = [
+  "..aAa.aAa...",
+  ".aAAAaAAAa..",
+  "aAAAAAAAAXii",
+  "aAAAAAAAAiki",
+  "aAAAAAAAAaii",
+  ".aAAAAAAAa..",
+  "..X.X..X.X..",
+  "..X.X..X.X..",
+];
+
+export const SHEEP_B = [
+  "..aAa.aAa...",
+  ".aAAAaAAAa..",
+  "aAAAAAAAAa..",
+  "aAAAAAAAAa..",
+  "aAAAAAAAAXii",
+  ".aAAAAAAAiki",
+  "..X.X..X.Xii",
+  "..X.X..X.X..",
+];
+
 export const DOG_A = [
   ".....tTT..",
   "t....tTkTT",

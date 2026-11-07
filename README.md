@@ -57,6 +57,7 @@ and a little sign tells you how many days you need for the next one.
 | --- | --- |
 | 7 days | 🐔 A chicken (one more every 7 days, up to 3) |
 | 30 days | 🐄 A cow |
+| 50 days | 🐑 A sheep |
 | 100 days | 🐕 A dog that follows the farmer around |
 
 Longest streak, not current: breaking your streak never takes your animals away.
