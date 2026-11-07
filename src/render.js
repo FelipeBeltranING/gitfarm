@@ -215,14 +215,14 @@ export function renderFarm({
   const on = (t) => {
     const name = `o${Math.round(t * 100)}`;
     if (!keyframes.has(name)) {
-      keyframes.set(name, `@keyframes ${name}{0%{opacity:0}${pct(t)}{opacity:1}100%{opacity:1}}`);
+      keyframes.set(name, `@keyframes ${name}{${pct(t)},to{opacity:1}}`);
     }
     return name;
   };
   const windowed = (t1, t2) => {
     const name = `w${Math.round(t1 * 100)}_${Math.round(t2 * 100)}`;
     if (!keyframes.has(name)) {
-      keyframes.set(name, `@keyframes ${name}{0%{opacity:0}${pct(t1)}{opacity:1}${pct(t2)}{opacity:0}100%{opacity:0}}`);
+      keyframes.set(name, `@keyframes ${name}{${pct(t1)}{opacity:1}${pct(t2)}{opacity:0}}`);
     }
     return name;
   };
@@ -332,7 +332,9 @@ export function renderFarm({
   });
   farmerPts.push([walkEnd + EXIT, exitX, fy(ld)]);
 
+  const steady = (a, b, c) => [1, 2].every((k) => Math.abs(a[k] + ((b[0] - a[0]) / (c[0] - a[0])) * (c[k] - a[k]) - b[k]) < 0.01);
   const toFrames = (pts) => pts
+    .filter((p, i) => i === 0 || i === pts.length - 1 || !steady(pts[i - 1], p, pts[i + 1]))
     .map(([t, x, y]) => `${pct(t)}{transform:translate(${x}px,${y}px)}`)
     .join("") + `100%{transform:translate(${pts.at(-1)[1]}px,${pts.at(-1)[2]}px)}`;
   const moves = toFrames(farmerPts);

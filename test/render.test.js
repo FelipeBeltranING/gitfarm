@@ -162,6 +162,17 @@ test("perched birds swap between two frames (normal and pecking), never one alon
   assert.equal((svg.match(/href="#birdP" class="bpA"/g) ?? []).length, (svg.match(/href="#birdK" class="bpB"/g) ?? []).length);
 });
 
+test("the busiest farm stays under 300 KB in every season", () => {
+  const busy = cal.weeks.map((week) => week.map((day) => day && { ...day, count: day.count + 3, level: 4 }));
+  const crops = [{ crop: "corn", share: 0.4 }, { crop: "sunflower", share: 0.3 }, { crop: "pumpkin", share: 0.3 }];
+  for (const season of ["none", "spring", "summer", "autumn", "winter", "rainy", "dry"]) {
+    for (const time of ["day", "night"]) {
+      const kb = Buffer.byteLength(renderFarm({ user: "octocat", total: 99999, weeks: busy, crops, streak: 365, season, time })) / 1024;
+      assert.ok(kb < 300, `${season} ${time}: ${kb.toFixed(0)} KB`);
+    }
+  }
+});
+
 test("reduced motion stops the animation and shows the finished farm", () => {
   const svg = renderFarm({ user: "octocat", total: 1000, weeks: demoCalendar(7).weeks, crop: "corn", streak: 100 });
   const still = svg.match(/@media \(prefers-reduced-motion:reduce\)\{([\s\S]*?)\n\}/)?.[1];
