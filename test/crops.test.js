@@ -8,6 +8,7 @@ test("languages map to crops", () => {
   assert.equal(cropForLanguage("Haskell"), "carrot");
   assert.equal(cropForLanguage("Kotlin"), "strawberry");
   assert.equal(cropForLanguage("Zig"), "chili");
+  assert.equal(cropForLanguage("Perl"), "grape");
   assert.equal(cropForLanguage("Brainfuck"), "wheat");
 });
 

@@ -35,6 +35,7 @@ export const PALETTE = {
   v: "#7fc8f8", z: "#4a9fd8",
   // more crops
   1: "#ec7f2c", 2: "#b5571d", 3: "#8e3b1f", 4: "#dc9a32",
+  5: "#9b5fd0", 6: "#5e2d8c",
 };
 
 // --- Farmer, 12x16, two walking frames -------------------------------------
@@ -409,6 +410,29 @@ export const CROPS = {
       ".r.DD.r.",
       "...DD...",
       "...DD...",
+    ],
+  },
+  grape: {
+    name: "grape",
+    grown: [
+      "........",
+      ".lLLLLl.",
+      "lLDLLDLl",
+      "LLlmmlLL",
+      ".ll.m.l.",
+      "..l.mm..",
+      "...mm...",
+      "...mm...",
+    ],
+    harvest: [
+      ".lLLLLl.",
+      "lLDLLDLl",
+      "LLlmmlLL",
+      "565mm656",
+      ".65mm56.",
+      ".5.mm.6.",
+      "...mm...",
+      "...mm...",
     ],
   },
 };

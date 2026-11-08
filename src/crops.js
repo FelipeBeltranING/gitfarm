@@ -52,9 +52,12 @@ const LANGUAGE_CROPS = {
 
   Zig: "chili",
   Assembly: "chili",
+  Perl: "grape",
+  Raku: "grape",
+  Crystal: "grape",
 };
 
-export const CROP_NAMES = ["corn", "sunflower", "tomato", "coffee", "strawberry", "pumpkin", "cacao", "carrot", "rice", "wheat", "avocado", "chili"];
+export const CROP_NAMES = ["corn", "sunflower", "tomato", "coffee", "strawberry", "pumpkin", "cacao", "carrot", "rice", "wheat", "avocado", "chili", "grape"];
 
 export const MIN_SHARE = 0.15;
 export const MAX_CROPS = 3;
