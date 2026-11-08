@@ -1,7 +1,7 @@
 import {
   PIXEL, PALETTE, FARMER_A, FARMER_B, FARMER_WATER, TILE_GRASS, TILE_SOIL, TILE_GOLD,
   SPROUT, SMALL, SPARKLE, CROPS,
-  CHICKEN_A, CHICKEN_B, COW_A, COW_B, DOG_A, DOG_B, HAY,
+  CHICKEN_A, CHICKEN_B, COW_A, COW_B, SHEEP_A, SHEEP_B, DOG_A, DOG_B, HAY,
   SCARECROW, SHACK, BARN, SILO, DROPS, PUDDLE, FLOWER,
   BIRD_PERCHED, BIRD_PECK, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING,
 } from "./sprites.js";
@@ -422,6 +422,12 @@ export function renderFarm({
     stillCss.push(`.cow{transform:translate(${cow.home.toFixed(1)}px,${floorY}px)}`);
     pasture.push(`<g class="cow" style="animation:cow ${cow.duration.toFixed(2)}s linear infinite"><g transform="scale(1.5)"><use href="#cowA" class="ga"/><use href="#cowB" class="gb"/></g></g>`);
   }
+  if (animals.sheep) {
+    const sheep = wander({ name: "sheep", seed: 7, minX: roamMin, maxX: roamMax, y: floorY, speed: 8, pause: [2, 6], minDuration: 24 });
+    extraCss.push(sheep.css);
+    stillCss.push(`.sheep{transform:translate(${sheep.home.toFixed(1)}px,${floorY}px)}`);
+    pasture.push(`<g class="sheep" style="animation:sheep ${sheep.duration.toFixed(2)}s linear infinite"><use href="#sheepA" class="ga" style="animation-delay:-1.7s"/><use href="#sheepB" class="gb" style="animation-delay:-1.7s"/></g>`);
+  }
   for (let c = 0; c < animals.chickens; c++) {
     const ch = wander({ name: `chk${c}`, seed: 11 + c * 5, minX: roamMin, maxX: roamMax, y: floorY, speed: 22, pause: [0.6, 2.2], minDuration: 14 + c * 3 });
     extraCss.push(ch.css);
@@ -586,6 +592,8 @@ export function renderFarm({
   footDef("chickenB", CHICKEN_B);
   footDef("cowA", COW_A);
   footDef("cowB", COW_B);
+  footDef("sheepA", SHEEP_A);
+  footDef("sheepB", SHEEP_B);
   footDef("scarecrow", SCARECROW);
   footDef("shack", SHACK);
   footDef("barn", BARN);
