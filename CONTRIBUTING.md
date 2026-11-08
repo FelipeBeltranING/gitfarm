@@ -69,6 +69,17 @@ sprite at the middle of its feet so it can walk and flip. Look at how the chicke
 (`CHICKEN_A`, `CHICKEN_B` and the `wander()` helper). If your animal unlocks with something
 new, add the rule to `src/stats.js` with a test.
 
+## Add a seasonal touch 🍂
+
+Each season in [`src/themes.js`](src/themes.js) is a palette plus a few flags (`flowers`,
+`puddles`, `particles`). To add something that only shows up in one season:
+
+1. Reuse a flag, or add a new one to that season in `src/themes.js`.
+2. Draw it in `src/render.js` (search for `theme.flowers` or `theme.puddles` to see how the others
+   are placed) and pick its spots with `hash()`, so they're the same on every run.
+3. Add a test in `test/render.test.js` that checks it shows up in that season and not in the others.
+4. Preview it: `node src/cli.js --demo --season rainy --out demo.svg`
+
 ## Rules of the SVG
 
 - **No JavaScript.** GitHub strips scripts from images, so everything is CSS keyframes.
@@ -84,7 +95,36 @@ new, add the rule to `src/stats.js` with a test.
 Plain modern JavaScript (ES modules), 2 spaces, double quotes. Keep functions small and add a
 test in `test/` for any logic you add.
 
-## Ideas
+## Before you open a PR ✅
 
-Check the [issues](https://github.com/FelipeBeltranING/gitfarm/issues), especially the ones
-labelled `good first issue`. Have an idea? Open an issue and let's talk about it!
+- [ ] `npm test` passes.
+- [ ] You previewed it with the CLI (`--demo` plus the `--season`, `--time` or `--streak` it needs).
+- [ ] It looks right standing still: in Chrome DevTools, open **Rendering** and set
+      *Emulate CSS media feature prefers-reduced-motion* to `reduce`.
+- [ ] The PR has a screenshot or a short GIF (`node tools/record.mjs demo.svg --out demo.gif`)
+      and links its issue (`Closes #18`).
+
+## What to work on
+
+The [issues](https://github.com/FelipeBeltranING/gitfarm/issues) are the roadmap. Pick one by label:
+
+| Label | What you'll do |
+| --- | --- |
+| [`good first issue`](https://github.com/FelipeBeltranING/gitfarm/labels/good%20first%20issue) | Small and well described, usually a new crop or animal. Perfect for a first PR. |
+| [`pixel-art`](https://github.com/FelipeBeltranING/gitfarm/labels/pixel-art) | Mostly drawing sprites, very little JavaScript. |
+| [`help wanted`](https://github.com/FelipeBeltranING/gitfarm/labels/help%20wanted) | Bigger features with CSS animation. |
+
+Comment on the issue before you start, so nobody duplicates work.
+
+### More ideas up for grabs
+
+These don't have an issue yet. Open one to claim it, or to propose your own:
+
+- 🌾 **A crop for a language that still grows wheat**: Solidity, Nim, Gleam, Groovy, TeX, COBOL...
+- 🐴 **A horse for a 200-day streak**, so long streaks keep unlocking something after the dog.
+- 🦉 **An owl on the fence at night** that turns its head now and then.
+- ⛄ **A snowman next to the barn in winter.**
+- 🐝 **Bees buzzing around the harvest plots in summer.**
+- 🌈 **A rainbow after the shower** when `weather` is on.
+- 🌍 **The web generator in your language**: add a block to `TEXTS` in `public/app.js` (copy the
+  `es` one) and teach `pickLanguage()` to choose it.
