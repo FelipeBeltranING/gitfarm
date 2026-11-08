@@ -49,9 +49,12 @@ const LANGUAGE_CROPS = {
   HCL: "rice",
   Nix: "rice",
   Makefile: "rice",
+
+  Zig: "chili",
+  Assembly: "chili",
 };
 
-export const CROP_NAMES = ["corn", "sunflower", "tomato", "coffee", "strawberry", "pumpkin", "cacao", "carrot", "rice", "wheat", "avocado"];
+export const CROP_NAMES = ["corn", "sunflower", "tomato", "coffee", "strawberry", "pumpkin", "cacao", "carrot", "rice", "wheat", "avocado", "chili"];
 
 export const MIN_SHARE = 0.15;
 export const MAX_CROPS = 3;

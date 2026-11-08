@@ -44,6 +44,7 @@ in proportion (languages under 15% are left out):
 | R, Julia, MATLAB, Fortran | 🍫 Cacao |
 | Haskell, Elixir, Erlang, Scala, Clojure, OCaml, F#, Elm | 🥕 Carrot |
 | Shell, PowerShell, Dockerfile, HCL, Nix, Makefile | 🍚 Rice |
+| Zig, Assembly | 🌶️ Chili |
 | Everything else | 🌾 Wheat |
 
 Don't like your crops? Pick them yourself with `crop: tomato` or `crop: corn,coffee`.
@@ -140,7 +141,7 @@ jobs:
         with:
           github_user_name: ${{ github.repository_owner }}
           output: dist/farm.svg
-          # crop: auto            # or corn, sunflower, tomato, coffee, strawberry, pumpkin, cacao, carrot, rice, wheat, avocado (comma separated)
+          # crop: auto            # or corn, sunflower, tomato, coffee, strawberry, pumpkin, cacao, carrot, rice, wheat, avocado, chili (comma separated)
           # season: auto          # or none, spring, summer, autumn, winter, rainy, dry, auto-south
           # time: auto            # or day, night
           # timezone: America/Bogota
@@ -170,7 +171,7 @@ That's it. Your farm replants itself every day.
 | `github_user_name` | repo owner | Whose contributions grow on the farm |
 | `github_token` | `github.token` | Used to read the contribution calendar |
 | `output` | `dist/farm.svg` | Where the SVG is written |
-| `crop` | `auto` | `auto` (mix of your languages) or a comma-separated list: `corn`, `sunflower`, `tomato`, `coffee`, `strawberry`, `pumpkin`, `cacao`, `carrot`, `rice`, `wheat`, `avocado` |
+| `crop` | `auto` | `auto` (mix of your languages) or a comma-separated list: `corn`, `sunflower`, `tomato`, `coffee`, `strawberry`, `pumpkin`, `cacao`, `carrot`, `rice`, `wheat`, `avocado`, `chili` |
 | `season` | `none` | `none`, `spring`, `summer`, `autumn`, `winter`, `rainy`, `dry`, `auto`, `auto-south` |
 | `time` | `auto` | `auto`, `day` or `night` |
 | `timezone` | `UTC` | IANA time zone used by `time: auto` |

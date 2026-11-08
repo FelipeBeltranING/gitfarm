@@ -388,6 +388,29 @@ export const CROPS = {
       "...DD...",
     ],
   },
+  chili: {
+    name: "chili",
+    grown: [
+      "...lL...",
+      "..lLAl..",
+      ".lLDLLl.",
+      ".LAlLDL.",
+      ".lDLLAl.",
+      "..LDLL..",
+      "...DD...",
+      "...DD...",
+    ],
+    harvest: [
+      "...lL...",
+      ".llLLll.",
+      "lLRDLRLl",
+      ".lRlDRL.",
+      ".RrDLRr.",
+      ".r.DD.r.",
+      "...DD...",
+      "...DD...",
+    ],
+  },
 };
 
 // --- Animals (facing right, unlocked by streaks) ---------------------------
