@@ -1,4 +1,5 @@
 import {
+  BUTTERFLY_A, BUTTERFLY_B,
   PIXEL, PALETTE, FARMER_A, FARMER_B, FARMER_WATER, TILE_GRASS, TILE_SOIL, TILE_GOLD,
   SPROUT, SMALL, SPARKLE, CROPS,
   CHICKEN_A, CHICKEN_B, COW_A, COW_B, DOG_A, DOG_B, HAY,
@@ -33,6 +34,8 @@ const COUNT_TICK = 0.12;
 const WATER = 0.4; // pause on each watered plot
 const MAX_WATERED = 12;
 const WEATHER_CYCLE = 36; // seconds, clouds + rain loop
+const BUTTERFLY_COLORS = ["#f6cf4f", "#7fc8f8", "#ec7f2c"];
+const BUTTERFLY_SPEED = 24;
 
 const FONT = "'Courier New',ui-monospace,monospace";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -439,13 +442,37 @@ export function renderFarm({
       : height - Math.floor(hash(k * 5 + 9) * 12) - 8;
     ground += `<rect x="${tx}" y="${ty}" width="2" height="4" fill="${theme.tuft}"/><rect x="${tx + 2}" y="${ty + 2}" width="2" height="2" fill="${theme.tuft}"/>`;
   }
+  const meadow = [];
   if (theme.flowers) {
     for (let k = 0; k < 28; k++) {
       const fxp = Math.floor(hash(k * 11 + 4) * (width - 20)) + 10;
       const top = hash(k * 19 + 2) < 0.4;
       const fyp = top ? Math.floor(hash(k * 23 + 1) * 6) + 4 : height - Math.floor(hash(k * 29 + 6) * 10) - 10;
       ground += `<use href="#flower${k % 3}" x="${fxp}" y="${fyp}"/>`;
+      if (!top && fxp > roamMin && fxp < roamMax) meadow.push([fxp - 2, fyp - 6]);
     }
+  }
+
+  let butterflies = "";
+  if (meadow.length && !night) {
+    BUTTERFLY_COLORS.forEach((_, b) => {
+      const stops = Array.from({ length: 4 }, (_, k) => meadow[Math.floor(hash(b * 59 + k * 13 + 1) * meadow.length)]);
+      const pts = [];
+      let t = 0;
+      stops.forEach(([x, y], k) => {
+        const [nx, ny] = stops[(k + 1) % stops.length];
+        const leg = Math.hypot(nx - x, ny - y) / 4 / BUTTERFLY_SPEED;
+        pts.push([t, x, y], [t += 1 + hash(b * 7 + k) * 2, x, y]);
+        for (let q = 1; q < 4; q++) pts.push([t += leg, x + ((nx - x) * q) / 4, y + ((ny - y) * q) / 4 - 10 - (q % 2) * 8]);
+        t += leg;
+      });
+      const [x0, y0] = stops[0];
+      const frames = pts.map(([pt, x, y]) => `${((pt / t) * 100).toFixed(3)}%{transform:translate(${x.toFixed(1)}px,${y.toFixed(1)}px)}`).join("");
+      extraCss.push(`@keyframes bf${b}{${frames}100%{transform:translate(${x0}px,${y0}px)}}`);
+      stillCss.push(`.bf${b}{transform:translate(${x0}px,${y0}px)}`);
+      const flap = `animation-delay:-${(b * 0.11).toFixed(2)}s`;
+      butterflies += `<g class="bf${b}" style="animation:bf${b} ${t.toFixed(2)}s ease-in-out infinite"><use href="#bfly${b}A" class="fa" style="${flap}"/><use href="#bfly${b}B" class="fb" style="${flap}"/></g>`;
+    });
   }
 
   let particles = "";
@@ -600,6 +627,9 @@ export function renderFarm({
   if (theme.flowers) {
     ["#f29cc1", "#ffffff", "#b99cf2"].forEach((color, k) => def(`flower${k}`, FLOWER, { ...pal, f: color }));
   }
+  if (butterflies) {
+    BUTTERFLY_COLORS.forEach((color, b) => { def(`bfly${b}A`, BUTTERFLY_A, { ...pal, f: color }); def(`bfly${b}B`, BUTTERFLY_B, { ...pal, f: color }); });
+  }
 
   // While watering, the walking sprites hide and the watering one shows.
   const farmerSprites = waterWindows.length
@@ -669,6 +699,7 @@ ${animals.dog ? `<g class="dog"><use href="#dogA" class="fa"/><use href="#dogB" 
 <g class="farmer">${farmerSprites}</g>
 </g>
 ${pasture.join("\n")}
+${butterflies}
 ${weatherLayer}
 ${particles}
 ${nightLayer}

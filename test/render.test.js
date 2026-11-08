@@ -99,6 +99,16 @@ test("days without contributions stay as clean soil (no weeds)", () => {
   assert.doesNotMatch(svg, /weed/);
 });
 
+test("butterflies flutter over the spring flowers, out of sync and never at night", () => {
+  const durations = (svg) => [...svg.matchAll(/animation:bf\d ([\d.]+)s/g)].map((m) => m[1]);
+  assert.deepEqual(durations(render({ season: "summer" })), []);
+  assert.deepEqual(durations(render({ season: "spring", time: "night" })), []);
+  const svg = render({ season: "spring" });
+  assert.equal(new Set(durations(svg)).size, 3);
+  const still = svg.match(/@media \(prefers-reduced-motion:reduce\)\{([\s\S]*?)\n\}/)[1];
+  for (const b of [0, 1, 2]) assert.match(still, new RegExp(`\\.bf${b}\\{transform:translate\\(`), `butterfly ${b} has a still position`);
+});
+
 test("rainy season still has puddles on empty days", () => {
   assert.match(render({ season: "rainy" }), /href="#puddle"/);
 });
