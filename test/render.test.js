@@ -103,6 +103,16 @@ test("rainy season still has puddles on empty days", () => {
   assert.match(render({ season: "rainy" }), /href="#puddle"/);
 });
 
+test("ducks splash in up to two puddles, only on rainy days", () => {
+  const ducks = (svg) => [...svg.matchAll(/href="#duckA" x="(\d+)" y="(\d+)"/g)].map(([, x, y]) => `${x},${y - 2}`);
+  assert.deepEqual(ducks(render({ season: "spring" })), []);
+  const svg = render({ season: "rainy" });
+  const puddles = new Set([...svg.matchAll(/href="#puddle" x="(\d+)" y="(\d+)"/g)].map(([, x, y]) => `${x},${y}`));
+  assert.equal(ducks(svg).length, 2);
+  for (const at of ducks(svg)) assert.ok(puddles.has(at), "each duck sits in a puddle");
+  assert.equal(svg, render({ season: "rainy" }));
+});
+
 test("only the best day of the year gets a golden plot", () => {
   const svg = render();
   assert.equal(svg.match(/<use href="#gold"/g).length, 1);

@@ -3,7 +3,7 @@ import {
   SPROUT, SMALL, SPARKLE, CROPS,
   CHICKEN_A, CHICKEN_B, COW_A, COW_B, DOG_A, DOG_B, HAY,
   SCARECROW, SHACK, BARN, SILO, DROPS, PUDDLE, FLOWER,
-  BIRD_PERCHED, BIRD_PECK, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING,
+  BIRD_PERCHED, BIRD_PECK, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING, DUCK_A, DUCK_B,
 } from "./sprites.js";
 import { computeStats, unlockedAnimals, nextUnlock } from "./stats.js";
 import { themeFor, resolveSeason, farmerPalette } from "./themes.js";
@@ -240,6 +240,12 @@ export function renderFarm({
   const base = [];
   const soil = [];
   const plants = [];
+  const puddles = theme.puddles ? path.map((_, i) => i).filter((i) => dayAt(i) && plantAt[i].stage === "empty" && hash(i * 17 + 3) < 0.18) : [];
+  const ducks = new Set(puddles.toSorted((a, b) => hash(a * 31 + 7) - hash(b * 31 + 7)).slice(0, 2));
+  const duck = (x, y, i) => {
+    const delay = `animation-delay:-${(hash(i * 37) * 3.4).toFixed(2)}s`;
+    return `<g class="bob" style="${delay}"><use href="#duckA" x="${x}" y="${y + 2}" class="ga" style="${delay}"/><use href="#duckB" x="${x}" y="${y + 2}" class="gb" style="${delay}"/></g>`;
+  };
   const usedSprites = new Set();
   const spriteHeight = (rows) => rows.length * PIXEL;
   const cropRows = (crop, stage, stem) => stretchSprite(CROPS[crop][stage], stem);
@@ -261,8 +267,9 @@ export function renderFarm({
     }
     if (plant.stage === "empty") {
       // Days without contributions stay as clean tilled soil (puddles only in the rainy season).
-      if (theme.puddles && hash(i * 17 + 3) < 0.18) {
-        plants.push([order, `<use href="#puddle" x="${x}" y="${y}" ${anim(on(t + GROWN_AFTER))}/>`]);
+      if (puddles.includes(i)) {
+        const water = `<use href="#puddle" x="${x}" y="${y}"/>` + (ducks.has(i) ? duck(x, y, i) : "");
+        plants.push([order, `<g ${anim(on(t + GROWN_AFTER))}>${water}</g>`]);
       }
       return;
     }
@@ -596,7 +603,8 @@ export function renderFarm({
   footDef("birdB", BIRD_FLY_B);
   footDef("cat", CAT_SLEEPING);
   if (waterWindows.length) { def("farmerW", FARMER_WATER); def("drops", DROPS); }
-  if (theme.puddles) def("puddle", PUDDLE);
+  if (theme.puddles) { def("puddle", PUDDLE); def("duckA", DUCK_A); def("duckB", DUCK_B); }
+  if (ducks.size) extraCss.push(".bob{animation:bob 1.6s step-end infinite}@keyframes bob{50%{transform:translate(0,1px)}}");
   if (theme.flowers) {
     ["#f29cc1", "#ffffff", "#b99cf2"].forEach((color, k) => def(`flower${k}`, FLOWER, { ...pal, f: color }));
   }
