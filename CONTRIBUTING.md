@@ -78,6 +78,7 @@ new, add the rule to `src/stats.js` with a test.
   finished. If you animate something new, check how it looks still: anything that moves along a
   keyframe path needs a position in `stillCss` in `src/render.js`, or it ends up in the corner.
 - **Mind the size.** The SVG is downloaded on every profile view; keep it under ~300 KB.
+  `npm test` renders the busiest possible farm in every season and fails above that.
 
 ## Code style
 
