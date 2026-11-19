@@ -43,6 +43,8 @@ test("animals depend on the streak", () => {
   assert.doesNotMatch(render({ streak: 3 }), /href="#chickenA"/);
   assert.match(render({ streak: 7 }), /href="#chickenA"/);
   assert.match(render({ streak: 30 }), /href="#cowA"/);
+  assert.doesNotMatch(render({ streak: 49 }), /class="sheep"/);
+  assert.match(render({ streak: 50 }), /class="sheep"/);
   assert.match(render({ streak: 100 }), /class="dog"/);
 });
 
@@ -170,7 +172,7 @@ test("reduced motion stops the animation and shows the finished farm", () => {
   assert.match(still, /\.a\[style\*="name:o"\]/, "plots that stay show up");
 
   // Moving things have no position without their keyframes, so each needs a still one.
-  for (const name of ["farmer", "dog", "cow", "chk0", "chk1", "chk2"]) {
+  for (const name of ["farmer", "dog", "cow", "sheep", "chk0", "chk1", "chk2"]) {
     assert.match(svg, new RegExp(`class="${name}"`), `${name} is on the farm`);
     assert.match(still, new RegExp(`\\.${name}\\{transform:translate\\(`), `${name} has a still position`);
   }
