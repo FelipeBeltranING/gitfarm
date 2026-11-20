@@ -772,6 +772,18 @@ export const SNOWMAN = [
   ".xxxxxx.",
 ];
 
+export const BEE_A = [ // wings up
+  ".e.e.",
+  "kYkYk",
+  ".YkY.",
+];
+
+export const BEE_B = [ // wings down
+  ".....",
+  "kYkYk",
+  "eYkYe",
+];
+
 export const CAT_SLEEPING = [
   ".1.1.....",
   ".1111....",

@@ -4,7 +4,7 @@ import {
   SPROUT, SMALL, SPARKLE, CROPS,
   CHICKEN_A, CHICKEN_B, COW_A, COW_B, SHEEP_A, SHEEP_B, HORSE_A, HORSE_B, DOG_A, DOG_B, HAY,
   SCARECROW, SHACK, BARN, SILO, DROPS, PUDDLE, FLOWER,
-  BIRD_PERCHED, BIRD_PECK, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING, DUCK_A, DUCK_B, OWL_A, OWL_B, SNOWMAN,
+  BIRD_PERCHED, BIRD_PECK, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING, DUCK_A, DUCK_B, OWL_A, OWL_B, SNOWMAN, BEE_A, BEE_B,
 } from "./sprites.js";
 import { computeStats, unlockedAnimals, nextUnlock } from "./stats.js";
 import { themeFor, resolveSeason, farmerPalette } from "./themes.js";
@@ -36,6 +36,10 @@ const MAX_WATERED = 12;
 const WEATHER_CYCLE = 36; // seconds, clouds + rain loop
 const BUTTERFLY_COLORS = ["#f6cf4f", "#7fc8f8", "#ec7f2c"];
 const BUTTERFLY_SPEED = 24;
+const BEES = 3;
+const BEE_SPEED = 40;
+const RAINBOW_SECONDS = 6; // how long the rainbow lingers after a shower
+const RAINBOW = ["#e5483a", "#f08a2c", "#f6cf4f", "#5cb85c", "#4aa3e8", "#8e5ccf"];
 
 const FONT = "'Courier New',ui-monospace,monospace";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -243,6 +247,7 @@ export function renderFarm({
   const base = [];
   const soil = [];
   const plants = [];
+  const beeSpots = []; // above fully grown plants, where the summer bees hang around
   const puddles = theme.puddles ? path.map((_, i) => i).filter((i) => dayAt(i) && plantAt[i].stage === "empty" && hash(i * 17 + 3) < 0.18) : [];
   const ducks = new Set(puddles.toSorted((a, b) => hash(a * 31 + 7) - hash(b * 31 + 7)).slice(0, 2));
   const duck = (x, y, i) => {
@@ -290,6 +295,7 @@ export function renderFarm({
     usedSprites.add(id);
     const h = spriteHeight(cropRows(c, plant.stage, plant.stem));
     const py = y + CELL - h;
+    beeSpots.push([x + 5, py - 6]);
     let g = `<use href="#${id}" x="${x}" y="${py}"/>`;
     if (plant.golden) {
       const delay = (hash(i) * 2).toFixed(2);
@@ -505,6 +511,27 @@ export function renderFarm({
     });
   }
 
+  // Summer: a few bees zigzag between fully grown plants.
+  let bees = "";
+  if (theme.bees && !night && beeSpots.length) {
+    for (let b = 0; b < BEES; b++) {
+      const stops = Array.from({ length: 5 }, (_, k) => beeSpots[Math.floor(hash(b * 71 + k * 17 + 5) * beeSpots.length)]);
+      const pts = [];
+      let t = 0;
+      stops.forEach(([x, y], k) => {
+        const [nx, ny] = stops[(k + 1) % stops.length];
+        const leg = Math.hypot(nx - x, ny - y) / 5 / BEE_SPEED;
+        pts.push([t, x, y], [t += 0.5 + hash(b * 13 + k) * 1.2, x, y]);
+        for (let q = 1; q <= 5; q++) pts.push([t += leg, x + ((nx - x) * q) / 5, y + ((ny - y) * q) / 5 + (q % 2 ? -4 : 3)]);
+      });
+      const [x0, y0] = stops[0];
+      const frames = pts.map(([pt, x, y]) => `${((pt / t) * 100).toFixed(3)}%{transform:translate(${x.toFixed(1)}px,${y.toFixed(1)}px)}`).join("");
+      extraCss.push(`@keyframes bz${b}{${frames}100%{transform:translate(${x0}px,${y0}px)}}`);
+      stillCss.push(`.bz${b}{transform:translate(${x0}px,${y0}px)}`);
+      bees += `<g class="bz${b}" style="animation:bz${b} ${t.toFixed(2)}s linear infinite"><use href="#beeA" class="fa" style="animation-delay:-${(b * 0.07).toFixed(2)}s"/><use href="#beeB" class="fb" style="animation-delay:-${(b * 0.07).toFixed(2)}s"/></g>`;
+    }
+  }
+
   let particles = "";
   if (theme.particles) {
     const snow = theme.particles === "snow";
@@ -534,6 +561,22 @@ export function renderFarm({
     extraCss.push(`.cloudA{animation:drift ${WEATHER_CYCLE}s linear infinite}
 .cloudB{animation:drift ${WEATHER_CYCLE * 1.4}s linear infinite;animation-delay:-${(WEATHER_CYCLE * 0.8).toFixed(1)}s}
 @keyframes drift{0%{transform:translate(-160px,${GRID_TOP + 6}px)}100%{transform:translate(${width + 40}px,${GRID_TOP + 40}px)}}`);
+
+    // A rainbow fades in right after each shower, then fades out again.
+    if (theme.rainShare > 0 && !night) {
+      const r0 = 74;
+      const cx = Math.round(width * 0.6);
+      const cy = GRID_TOP - 16;
+      const arcs = RAINBOW.map((color, i) => {
+        const r = r0 - i * 3;
+        return `<path d="M${cx - r} ${cy}A${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="${color}" stroke-width="3"/>`;
+      }).join("");
+      weatherLayer += `<g class="rainbow">${arcs}</g>`;
+      const start = 50 + theme.rainShare * 50;
+      const end = start + (RAINBOW_SECONDS / WEATHER_CYCLE) * 100;
+      extraCss.push(`.rainbow{opacity:0;animation:rainbow ${WEATHER_CYCLE}s linear infinite}
+@keyframes rainbow{0%,${start.toFixed(1)}%{opacity:0}${(start + 4).toFixed(1)}%,${(end - 4).toFixed(1)}%{opacity:.8}${end.toFixed(1)}%,100%{opacity:0}}`);
+    }
 
     if (theme.rainShare > 0) {
       let drops = "";
@@ -658,6 +701,7 @@ export function renderFarm({
   footDef("cat", CAT_SLEEPING);
   if (night) { footDef("owlA", OWL_A); footDef("owlB", OWL_B); }
   if (theme.snowman) footDef("snowman", SNOWMAN);
+  if (bees) { def("beeA", BEE_A); def("beeB", BEE_B); }
   if (waterWindows.length) { def("farmerW", FARMER_WATER); def("drops", DROPS); }
   if (theme.puddles) { def("puddle", PUDDLE); def("duckA", DUCK_A); def("duckB", DUCK_B); }
   if (ducks.size) extraCss.push(".bob{animation:bob 1.6s step-end infinite}@keyframes bob{50%{transform:translate(0,1px)}}");
@@ -737,6 +781,7 @@ ${animals.dog ? `<g class="dog"><use href="#dogA" class="fa"/><use href="#dogB" 
 </g>
 ${pasture.join("\n")}
 ${butterflies}
+${bees}
 ${weatherLayer}
 ${particles}
 ${nightLayer}

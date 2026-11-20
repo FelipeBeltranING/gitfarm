@@ -12,12 +12,13 @@ const BASE = {
   flowers: false,
   puddles: false,
   snowman: false,
+  bees: false,
   rainShare: 0.22, // fraction of the weather cycle with rain (when weather is on)
 };
 
 const THEMES = {
   none: {},
-  summer: {},
+  summer: { bees: true },
   spring: {
     bg: "#3f8033",
     tuft: "#6db054",

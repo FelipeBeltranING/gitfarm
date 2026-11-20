@@ -130,6 +130,30 @@ test("a snowman stands by the barn in winter and no other season", () => {
   }
 });
 
+test("bees buzz around the grown plants in summer, never at night", () => {
+  const durations = (svg) => [...svg.matchAll(/animation:bz\d ([\d.]+)s/g)].map((m) => m[1]);
+  for (const season of ["none", "spring", "autumn", "winter", "rainy", "dry"]) assert.deepEqual(durations(render({ season })), [], season);
+  assert.deepEqual(durations(render({ season: "summer", time: "night" })), []);
+  const svg = render({ season: "summer" });
+  assert.equal(durations(svg).length, 3);
+  const still = svg.match(/@media \(prefers-reduced-motion:reduce\)\{([\s\S]*?)\n\}/)[1];
+  for (const b of [0, 1, 2]) assert.match(still, new RegExp(`\\.bz${b}\\{transform:translate\\(`), `bee ${b} has a still position`);
+  assert.equal(svg, render({ season: "summer" }));
+});
+
+test("a rainbow follows the shower, only with weather on and in daylight", () => {
+  const svg = render({ season: "rainy" });
+  assert.match(svg, /<g class="rainbow">/);
+  assert.match(svg, /\.rainbow\{opacity:0;animation:rainbow/, "hidden unless animated, so reduced motion shows no rainbow");
+  assert.doesNotMatch(render({ season: "rainy", weather: false }), /class="rainbow"/);
+  assert.doesNotMatch(render({ season: "rainy", time: "night" }), /class="rainbow"/);
+  for (const season of ["winter", "dry"]) assert.doesNotMatch(render({ season }), /class="rainbow"/, `${season} has no showers`);
+  // It appears after the rain stops, never while it falls.
+  const [, showerEnd] = svg.match(/@keyframes shower\{[^}]*\}[^}]*\}([\d.]+)%\{opacity:0\}/) ?? svg.match(/([\d.]+)%\{opacity:0\}\}\n\.drop/);
+  const [, rainbowStart] = svg.match(/@keyframes rainbow\{0%,([\d.]+)%\{opacity:0\}/);
+  assert.ok(Number(rainbowStart) >= Number(showerEnd) - 0.1, `rainbow ${rainbowStart}% vs shower end ${showerEnd}%`);
+});
+
 test("rainy season still has puddles on empty days", () => {
   assert.match(render({ season: "rainy" }), /href="#puddle"/);
 });
