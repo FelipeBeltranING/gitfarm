@@ -12,6 +12,7 @@
   },
   "scripts": {
     "test": "node --test",
+    "snapshots": "node tools/snapshots.mjs --update",
     "demo": "node src/cli.js --demo 7 --crop corn,sunflower,tomato --streak 100 --user octocat --out examples/demo.svg",
     "dev": "node tools/dev-server.mjs",
     "record": "node tools/record.mjs"

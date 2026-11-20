@@ -17,5 +17,13 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - run: npm test
+      - name: Upload the rendered farms when a snapshot changed
+        if: failure() && matrix.node == 24
+        run: node tools/snapshots.mjs --out snapshots
+      - uses: actions/upload-artifact@v4
+        if: failure() && matrix.node == 24
+        with:
+          name: snapshot-farms
+          path: snapshots/
       - name: Render a demo farm
         run: node src/cli.js --demo --streak 100 --out dist/demo.svg
