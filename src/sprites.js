@@ -504,6 +504,32 @@ export const SHEEP_B = [
   "..X.X..X.X..",
 ];
 
+export const HORSE_A = [
+  "...........mM..",
+  "..........mMMM.",
+  "..........mMkMM",
+  "mm.......mMMMMn",
+  "mMMMMMMMMMMMM..",
+  ".MMMMMMMMMMMM..",
+  ".MMMMMMMMMMM...",
+  "..MM.MM..MM.MM.",
+  "..MM.MM..MM.MM.",
+  "..XX.XX..XX.XX.",
+];
+
+export const HORSE_B = [ // grazing
+  "...............",
+  "...............",
+  "...............",
+  "mm........mM...",
+  "mMMMMMMMMMMMM..",
+  ".MMMMMMMMMMMMM.",
+  ".MMMMMMMMM.MMkM",
+  "..MM.MM..MM.Mnn",
+  "..MM.MM..MM.M..",
+  "..XX.XX..XX.X..",
+];
+
 export const DOG_A = [
   ".....tTT..",
   "t....tTkTT",

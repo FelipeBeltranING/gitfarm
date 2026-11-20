@@ -36,6 +36,7 @@ export const MAX_CHICKENS = 3;
 export const COW_AT = 30;
 export const SHEEP_AT = 50;
 export const DOG_AT = 100;
+export const HORSE_AT = 200;
 
 export function unlockedAnimals(streak) {
   return {
@@ -43,6 +44,7 @@ export function unlockedAnimals(streak) {
     cow: streak >= COW_AT,
     sheep: streak >= SHEEP_AT,
     dog: streak >= DOG_AT,
+    horse: streak >= HORSE_AT,
   };
 }
 
@@ -50,7 +52,7 @@ export function unlockedAnimals(streak) {
 export function nextUnlock(streak) {
   const goals = [];
   for (let k = 1; k <= MAX_CHICKENS; k++) goals.push([k * CHICKEN_EVERY, "a chicken"]);
-  goals.push([COW_AT, "a cow"], [SHEEP_AT, "a sheep"], [DOG_AT, "a dog"]);
+  goals.push([COW_AT, "a cow"], [SHEEP_AT, "a sheep"], [DOG_AT, "a dog"], [HORSE_AT, "a horse"]);
   goals.sort((a, b) => a[0] - b[0]);
   const next = goals.find(([at]) => at > streak);
   if (!next) return null;

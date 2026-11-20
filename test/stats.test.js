@@ -25,12 +25,14 @@ test("streaks continue across weeks and skip padding cells", () => {
   assert.equal(computeStats(weeks).longestStreak, 3);
 });
 
-test("animals unlock at 7/14/21, 30, 50 and 100 days", () => {
-  assert.deepEqual(unlockedAnimals(6), { chickens: 0, cow: false, sheep: false, dog: false });
-  assert.deepEqual(unlockedAnimals(14), { chickens: 2, cow: false, sheep: false, dog: false });
-  assert.deepEqual(unlockedAnimals(30), { chickens: 3, cow: true, sheep: false, dog: false });
-  assert.deepEqual(unlockedAnimals(50), { chickens: 3, cow: true, sheep: true, dog: false });
-  assert.deepEqual(unlockedAnimals(100), { chickens: 3, cow: true, sheep: true, dog: true });
+test("animals unlock at 7/14/21, 30, 50, 100 and 200 days", () => {
+  assert.deepEqual(unlockedAnimals(6), { chickens: 0, cow: false, sheep: false, dog: false, horse: false });
+  assert.deepEqual(unlockedAnimals(14), { chickens: 2, cow: false, sheep: false, dog: false, horse: false });
+  assert.deepEqual(unlockedAnimals(30), { chickens: 3, cow: true, sheep: false, dog: false, horse: false });
+  assert.deepEqual(unlockedAnimals(50), { chickens: 3, cow: true, sheep: true, dog: false, horse: false });
+  assert.deepEqual(unlockedAnimals(100), { chickens: 3, cow: true, sheep: true, dog: true, horse: false });
+  assert.deepEqual(unlockedAnimals(199), { chickens: 3, cow: true, sheep: true, dog: true, horse: false });
+  assert.deepEqual(unlockedAnimals(200), { chickens: 3, cow: true, sheep: true, dog: true, horse: true });
 });
 
 test("next unlock hint", () => {
@@ -38,5 +40,7 @@ test("next unlock hint", () => {
   assert.equal(nextUnlock(29), "1 more day for a cow");
   assert.equal(nextUnlock(30), "20 more days for a sheep");
   assert.equal(nextUnlock(50), "50 more days for a dog");
-  assert.equal(nextUnlock(100), null);
+  assert.equal(nextUnlock(100), "100 more days for a horse");
+  assert.equal(nextUnlock(199), "1 more day for a horse");
+  assert.equal(nextUnlock(200), null);
 });

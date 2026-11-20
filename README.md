@@ -50,7 +50,7 @@ in proportion (languages under 15% are left out):
 
 Don't like your crops? Pick them yourself with `crop: tomato` or `crop: corn,coffee`.
 
-## Animals 🐔🐄🐕
+## Animals 🐔🐄🐕🐴
 
 Your **longest streak of the year** unlocks animals. They live in the pasture below the field,
 and a little sign tells you how many days you need for the next one.
@@ -61,6 +61,7 @@ and a little sign tells you how many days you need for the next one.
 | 30 days | 🐄 A cow |
 | 50 days | 🐑 A sheep |
 | 100 days | 🐕 A dog that follows the farmer around |
+| 200 days | 🐴 A horse |
 
 Longest streak, not current: breaking your streak never takes your animals away.
 
