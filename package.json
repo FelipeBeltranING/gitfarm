@@ -3,6 +3,10 @@
   "version": "1.2.0",
   "description": "Turn your GitHub contribution graph into a pixel-art farm with a little farmer planting your commits.",
   "type": "module",
+  "files": [
+    "src",
+    "!src/action.js"
+  ],
   "bin": {
     "gitfarm": "src/cli.js"
   },

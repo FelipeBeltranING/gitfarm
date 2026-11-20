@@ -185,6 +185,15 @@ That's it. Your farm replants itself every day.
 | `farmer_hat` / `farmer_shirt` / `farmer_overalls` | classic farmer | Hex colors |
 | `farmer_hat_style` | `straw` | `straw`, `cap` or `none` |
 
+## Run it from the command line
+
+No clone needed, just Node 20 or newer:
+
+```bash
+npx gitfarm --user your-username --out farm.svg
+npx gitfarm --demo --season winter --time night --out demo.svg
+```
+
 ## Run it locally
 
 No dependencies, just Node 20+:
