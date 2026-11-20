@@ -1,0 +1,67 @@
+{
+  "labels": [
+    { "name": "iteration-6", "color": "8e5ccf", "description": "Iteration 6: a living farm and a growing community" }
+  ],
+  "issues": [
+    {
+      "title": "🐷 A pig that rolls in the mud during the rainy season",
+      "labels": ["enhancement", "pixel-art", "good first issue", "iteration-6"],
+      "body": "## Idea\nThe rainy season has puddles and ducks, but the pasture is the same as any other season. Add a **pig** that wanders the pasture and, in the rainy season only, spends its time next to a mud patch.\n\n## Where to start\n- Animals live in the pasture block of `src/render.js` (`wander()`, `pasture.push(...)`). The sheep and the horse are the simplest examples.\n- Seasons are flags in `src/themes.js`: add something like `pig: true` to `rainy`.\n- Draw two frames (standing and snuffling) in `src/sprites.js`.\n\n## Done when\n- [ ] The pig shows in the rainy season and in no other one.\n- [ ] It has a still position in `stillCss` for reduced motion.\n- [ ] A test in `test/render.test.js` covers it, and `npm run snapshots` is updated."
+    },
+    {
+      "title": "🌙 Real moon phases and the occasional shooting star at night",
+      "labels": ["enhancement", "pixel-art", "help wanted", "iteration-6"],
+      "body": "## Idea\nThe night farm always shows the same moon. Draw the **real phase of the day** (new, crescent, quarter, gibbous, full) from the generation date, and let a **shooting star** cross the sky every now and then.\n\n## Where to start\n- The moon is drawn in the `night` block of `src/render.js` (`moonX`). The `date` option is already passed to `renderFarm`.\n- The phase can be computed from the days since a known new moon (29.53-day cycle), no library needed. Put it in its own small function with a test.\n- The shooting star can be one `<rect>` with a long, mostly idle keyframe animation (see the fireflies).\n\n## Done when\n- [ ] The phase matches the real moon for a few known dates (tested).\n- [ ] Reduced motion shows no shooting star.\n- [ ] `npm run snapshots` is updated."
+    },
+    {
+      "title": "🎃 Holiday touches (Halloween, Christmas) with `holidays: true`",
+      "labels": ["enhancement", "customization", "help wanted", "iteration-6"],
+      "body": "## Idea\nAn opt-in `holidays` option that decorates the farm on special dates: a carved pumpkin next to the barn around Oct 31, a small decorated tree and lights on the fence around Dec 24-25. Off by default so nobody gets surprised.\n\n## Where to start\n- `renderFarm` already receives the generation `date` (used by `season: auto`).\n- Wire the new option like `weather`: `src/farm.js`, `src/cli.js`, `src/action.js`, `action.yml`, `api/farm.js`, and the web form in `public/`.\n- Keep the date logic in a small, testable function.\n\n## Done when\n- [ ] Decorations show only inside the holiday window and only with `holidays: true`.\n- [ ] The option is documented in the README and works in the Action, CLI, API and web generator.\n- [ ] Tests and `npm run snapshots` are updated."
+    },
+    {
+      "title": "🐈 Choose your pet: dog or cat follows the farmer",
+      "labels": ["enhancement", "customization", "pixel-art", "iteration-6"],
+      "body": "## Idea\nAt a 100-day streak a dog follows the farmer, and cat lovers get nothing. Add a `pet` option (`dog` default, `cat`) so the animal that trots behind the farmer can be a **cat**.\n\n## Where to start\n- The dog is `DOG_A` / `DOG_B` in `src/sprites.js` and `dogMoves` in `src/render.js`.\n- The napping cat on the barn is separate (`CAT_SLEEPING`); this is a walking cat with two frames.\n- Wire the option through the CLI, Action, API and web generator like `hat_style` (see the hat commit for the full list of files).\n\n## Done when\n- [ ] `pet: cat` replaces the dog everywhere it appears, including the still position for reduced motion.\n- [ ] The option is documented and tested, and `npm run snapshots` is updated."
+    },
+    {
+      "title": "🗣️ Translate the text inside the farm (sign, streak, best day)",
+      "labels": ["enhancement", "customization", "help wanted", "iteration-6"],
+      "body": "## Idea\nThe web page speaks English, Spanish, Portuguese and French, but the sign inside the SVG always says \"current streak\", \"best day\", \"more days for a cow\". Add a `lang` option so the farm itself speaks your language.\n\n## Where to start\n- All the strings are in `src/render.js` (`statsLine`, `pastureText`, the `best: N` label, the subtitle) and `nextUnlock()` in `src/stats.js`.\n- Move them to a small `src/i18n.js` with one block per language (copy the idea from `TEXTS` in `public/app.js`), defaulting to English.\n- Mind the sign widths: text is measured by length, and Portuguese and French run longer.\n\n## Done when\n- [ ] `lang: es|pt|fr` translates every string on the farm; English is unchanged byte for byte.\n- [ ] Long translations never run into the legend or each other.\n- [ ] The option works in the Action, CLI, API and web generator."
+    },
+    {
+      "title": "📅 Show a past year with a `year` option",
+      "labels": ["enhancement", "customization", "help wanted", "iteration-6"],
+      "body": "## Idea\nThe farm always shows the last 12 months. Let people plant the farm of a **specific year** (`year: 2024`), for year-in-review posts.\n\n## Where to start\n- `fetchCalendar(user, token)` in `src/github.js` asks GitHub for the last year. The GraphQL `contributionsCollection` accepts `from` and `to`.\n- The calendar must still end on a full week so the grid stays aligned (see how `demoCalendar` pads to Sunday).\n- The header says \"in the last year\"; it should name the year instead.\n\n## Done when\n- [ ] `year` works in the CLI, Action, API and web generator, and defaults to the current behavior.\n- [ ] Invalid years (future, before GitHub existed) give a friendly error.\n- [ ] Tests mock the GraphQL response (see `test/github.test.js`)."
+    },
+    {
+      "title": "🖼️ Attach rendered PNGs to the snapshot CI artifact",
+      "labels": ["enhancement", "help wanted", "iteration-6"],
+      "body": "## Idea\nWhen the visual snapshots fail, CI uploads the SVGs. Reviewers still have to download and open them. Render **PNGs** too (and ideally an image diff against `main`) so a visual change can be judged from the PR.\n\n## Where to start\n- `tools/snapshots.mjs --out dir` writes the SVGs, and `tools/record.mjs` already drives Playwright to capture an SVG.\n- Add a step to `.github/workflows/test.yml` that renders PNGs of the changed farms and uploads them with `actions/upload-artifact`.\n- Stretch goal: post the changed images as a PR comment.\n\n## Done when\n- [ ] A failing snapshot produces PNGs in the workflow artifacts.\n- [ ] CONTRIBUTING explains where to find them."
+    },
+    {
+      "title": "🚀 Automate releases: tag, notes, and the moving `v1` tag",
+      "labels": ["enhancement", "help wanted", "iteration-6"],
+      "body": "## Idea\nA release today means: bump `package.json`, tag, move the `v1` tag by hand, write the notes. Automate it so that pushing a `v*` tag does the rest.\n\n## Where to start\n- Add a workflow triggered by tags `v*.*.*` that runs the tests, creates the GitHub release with generated notes (`gh release create --generate-notes`) and moves the major tag (`v1`) to the new commit.\n- `.github/workflows/publish.yml` already publishes to npm when a release is published; the two should work together.\n- Document the maintainer steps in CONTRIBUTING.\n\n## Done when\n- [ ] Pushing a tag creates the release and updates the major tag.\n- [ ] The tag is checked against `package.json`'s version."
+    },
+    {
+      "title": "⚡ Make the SVG smaller (target: under 120 KB for the demo farm)",
+      "labels": ["enhancement", "help wanted", "iteration-6"],
+      "body": "## Idea\nThe SVG is downloaded on every profile view. The demo farm is around 170 KB and the limit in the tests is 300 KB. Find the next savings.\n\n## Where to start\n- `spriteRects()` in `src/render.js` emits one `<rect>` per run of pixels. Grouping runs by color into one `<path>` per sprite would shrink every sprite definition.\n- The per-plot `animation-name` styles and the keyframes (`on()` / `windowed()`) are the other big part.\n- Measure with `node src/cli.js --demo --out demo.svg` and `npm run snapshots`: the output must look identical, so only the hashes change.\n\n## Done when\n- [ ] The demo farm is under 120 KB and the busiest-farm test still passes.\n- [ ] Before and after screenshots are attached to the PR."
+    },
+    {
+      "title": "🌳 A tree that grows with the years since you joined GitHub",
+      "labels": ["enhancement", "pixel-art", "help wanted", "iteration-6"],
+      "body": "## Idea\nThe barn grows with your yearly contributions. Add a **tree** at the left end of the pasture that grows with the age of your account: a sapling in the first year, a young tree after 3, a big tree with fruit after 8.\n\n## Where to start\n- The GraphQL user object has `createdAt`; add it to what `src/github.js` returns and pass it through `src/farm.js` into `renderFarm`.\n- Three sprites in `src/sprites.js`; placement next to the pasture sign (see `roamMin` in `src/render.js` so animals do not walk through it).\n- Demo and preview data need a fallback age.\n\n## Done when\n- [ ] The tree size follows the account age, with tests for the thresholds.\n- [ ] Animals never overlap the tree, and reduced motion looks right."
+    },
+    {
+      "title": "😴 Animals go to sleep on night farms",
+      "labels": ["enhancement", "pixel-art", "good first issue", "iteration-6"],
+      "body": "## Idea\nAt night the owl is awake, but the chickens, cow, sheep and horse keep wandering as if it were noon. Make them **lie down and sleep** with a tiny floating `z` (the napping cat already has one).\n\n## Where to start\n- Animals are in the pasture block of `src/render.js`; night mode is the `night` flag.\n- A sleeping frame can reuse the existing sprite squashed, or be a new 2-row sprite per animal.\n- The `zz` keyframes for the cat are a ready-made example.\n\n## Done when\n- [ ] On night farms animals do not walk and show a sleeping frame.\n- [ ] Day farms are unchanged byte for byte.\n- [ ] `npm run snapshots` is updated."
+    },
+    {
+      "title": "📖 A gallery of farms in the README",
+      "labels": ["documentation", "good first issue", "iteration-6"],
+      "body": "## Idea\nThe README explains seasons, crops and animals in tables, but a picture is worth it. Add a **gallery** that shows each season, a night farm, the new crops and the three hats.\n\n## Where to start\n- `node tools/snapshots.mjs --out examples/gallery` already renders all the farms used by the visual tests.\n- Commit the SVGs under `examples/gallery/` and embed them in a README section, two per row with captions.\n- Add an `npm run gallery` shortcut so it is easy to refresh after visual changes.\n\n## Done when\n- [ ] The README has a gallery section that renders on GitHub.\n- [ ] CONTRIBUTING says when to refresh it."
+    }
+  ]
+}

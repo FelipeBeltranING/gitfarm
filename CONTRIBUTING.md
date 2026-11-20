@@ -99,6 +99,8 @@ test in `test/` for any logic you add.
 ## Before you open a PR ✅
 
 - [ ] `npm test` passes.
+- [ ] If you changed how something looks, `npm run snapshots` updated `test/snapshots.json`
+      (the visual tests fail on any pixel change until you do, and CI uploads the rendered SVGs).
 - [ ] You previewed it with the CLI (`--demo` plus the `--season`, `--time` or `--streak` it needs).
 - [ ] It looks right standing still: in Chrome DevTools, open **Rendering** and set
       *Emulate CSS media feature prefers-reduced-motion* to `reduce`.
@@ -117,17 +119,22 @@ The [issues](https://github.com/FelipeBeltranING/gitfarm/issues) are the roadmap
 
 Comment on the issue before you start, so nobody duplicates work.
 
-### Open ideas (iteration 5)
+### Open ideas (iteration 6)
 
 Each of these has an issue. Comment on it to claim it:
 
-- 🐴 [A horse for a 200-day streak](https://github.com/FelipeBeltranING/gitfarm/issues/39)
-- 🦉 [An owl on the fence at night](https://github.com/FelipeBeltranING/gitfarm/issues/40)
-- ⛄ [A snowman next to the barn in winter](https://github.com/FelipeBeltranING/gitfarm/issues/41)
-- 🐝 [Bees around the harvest plots in summer](https://github.com/FelipeBeltranING/gitfarm/issues/42)
-- 🌈 [A rainbow after the shower](https://github.com/FelipeBeltranING/gitfarm/issues/43)
-- 🌾 [Map more languages to crops](https://github.com/FelipeBeltranING/gitfarm/issues/44), 🥔 [a potato crop](https://github.com/FelipeBeltranING/gitfarm/issues/45) and 🍉 [a watermelon crop](https://github.com/FelipeBeltranING/gitfarm/issues/46)
-- 🌍 [The web generator in your language](https://github.com/FelipeBeltranING/gitfarm/issues/47)
-- 📦 [Publish to npm](https://github.com/FelipeBeltranING/gitfarm/issues/48), 🧢 [farmer hats](https://github.com/FelipeBeltranING/gitfarm/issues/49) and 🖼️ [visual regression checks in CI](https://github.com/FelipeBeltranING/gitfarm/issues/50)
+- 🐷 [A pig that rolls in the mud in the rainy season](https://github.com/FelipeBeltranING/gitfarm/issues/51)
+- 🌙 [Real moon phases and shooting stars at night](https://github.com/FelipeBeltranING/gitfarm/issues/52)
+- 🎃 [Holiday touches with `holidays: true`](https://github.com/FelipeBeltranING/gitfarm/issues/53)
+- 🐈 [Choose your pet: dog or cat](https://github.com/FelipeBeltranING/gitfarm/issues/54)
+- 🗣️ [Translate the text inside the farm](https://github.com/FelipeBeltranING/gitfarm/issues/55)
+- 📅 [Show a past year with `year`](https://github.com/FelipeBeltranING/gitfarm/issues/56)
+- 😴 [Animals sleep on night farms](https://github.com/FelipeBeltranING/gitfarm/issues/61)
+- 🌳 [A tree that grows with your account's age](https://github.com/FelipeBeltranING/gitfarm/issues/60)
+- 📖 [A gallery of farms in the README](https://github.com/FelipeBeltranING/gitfarm/issues/62)
+- 🖼️ [PNGs in the snapshot CI artifact](https://github.com/FelipeBeltranING/gitfarm/issues/57)
+- 🚀 [Automate releases](https://github.com/FelipeBeltranING/gitfarm/issues/58)
+- ⚡ [Make the SVG smaller](https://github.com/FelipeBeltranING/gitfarm/issues/59)
+- 📦 [Publish to npm (the package is ready, it needs the owner's npm token)](https://github.com/FelipeBeltranING/gitfarm/issues/48)
 
 Have another idea? Open an issue to propose it.
