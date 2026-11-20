@@ -146,6 +146,9 @@ test("farm URLs use every selected option and omit defaults", () => {
   assert.equal(url.searchParams.get("hat"), "#111111");
   assert.equal(url.searchParams.get("shirt"), "#222222");
   assert.equal(url.searchParams.get("overalls"), "#333333");
+  assert.equal(url.searchParams.get("hat_style"), null, "the default hat is omitted");
+  assert.equal(new URL(buildFarmUrl(base, { user: "vinay", hatStyle: "straw" })).searchParams.get("hat_style"), null);
+  assert.equal(new URL(buildFarmUrl(base, { user: "vinay", hatStyle: "cap" })).searchParams.get("hat_style"), "cap");
 });
 
 test("the download button is disabled on the demo farm", () => {

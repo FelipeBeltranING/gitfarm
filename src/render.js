@@ -4,10 +4,10 @@ import {
   SPROUT, SMALL, SPARKLE, CROPS,
   CHICKEN_A, CHICKEN_B, COW_A, COW_B, SHEEP_A, SHEEP_B, HORSE_A, HORSE_B, DOG_A, DOG_B, HAY,
   SCARECROW, SHACK, BARN, SILO, DROPS, PUDDLE, FLOWER,
-  BIRD_PERCHED, BIRD_PECK, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING, DUCK_A, DUCK_B, OWL_A, OWL_B, SNOWMAN, BEE_A, BEE_B,
+  BIRD_PERCHED, BIRD_PECK, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING, DUCK_A, DUCK_B, OWL_A, OWL_B, SNOWMAN, BEE_A, BEE_B, withHat,
 } from "./sprites.js";
 import { computeStats, unlockedAnimals, nextUnlock } from "./stats.js";
-import { themeFor, resolveSeason, farmerPalette } from "./themes.js";
+import { themeFor, resolveSeason, farmerPalette, parseHatStyle } from "./themes.js";
 import { harvestCap, plantFor, stretchSprite, dayAmount, STEM_MAX } from "./growth.js";
 import { planBirds, renderBirds, seedFrom } from "./birds.js";
 
@@ -146,7 +146,7 @@ function normalizeCrops(crops, crop, language) {
  * @param {string} [opts.season]     none | spring | summer | autumn | winter | rainy | dry | auto | auto-south
  * @param {"day"|"night"} [opts.time]
  * @param {boolean} [opts.weather]   drifting clouds and the occasional shower
- * @param {{hat?:string, shirt?:string, overalls?:string}} [opts.farmer]
+ * @param {{hat?:string, shirt?:string, overalls?:string, hatStyle?:"straw"|"cap"|"none"}} [opts.farmer]  colors and hat style
  * @param {Date} [opts.date]         generation date (for season: auto)
  */
 const CAT_STREAK = 3; // current streak that wakes up... well, brings the cat
@@ -158,6 +158,7 @@ export function renderFarm({
   const seasonName = resolveSeason(season, date);
   const theme = themeFor(seasonName);
   const night = time === "night";
+  const hatStyle = parseHatStyle(farmer.hatStyle);
   const pal = { ...PALETTE, ...theme.palette, ...farmerPalette(farmer) };
   const crops = normalizeCrops(cropMix, crop, language);
   const mainCrop = crops[0].crop;
@@ -677,8 +678,8 @@ export function renderFarm({
     def(id, cropRows(c, stage, Number(stem)));
   }
   def("sparkle", SPARKLE);
-  def("farmerA", FARMER_A);
-  def("farmerB", FARMER_B);
+  def("farmerA", withHat(FARMER_A, hatStyle));
+  def("farmerB", withHat(FARMER_B, hatStyle));
   def("dogA", DOG_A);
   def("dogB", DOG_B);
   def("hay", HAY);
@@ -702,7 +703,7 @@ export function renderFarm({
   if (night) { footDef("owlA", OWL_A); footDef("owlB", OWL_B); }
   if (theme.snowman) footDef("snowman", SNOWMAN);
   if (bees) { def("beeA", BEE_A); def("beeB", BEE_B); }
-  if (waterWindows.length) { def("farmerW", FARMER_WATER); def("drops", DROPS); }
+  if (waterWindows.length) { def("farmerW", withHat(FARMER_WATER, hatStyle)); def("drops", DROPS); }
   if (theme.puddles) { def("puddle", PUDDLE); def("duckA", DUCK_A); def("duckB", DUCK_B); }
   if (ducks.size) extraCss.push(".bob{animation:bob 1.6s step-end infinite}@keyframes bob{50%{transform:translate(0,1px)}}");
   if (theme.flowers) {

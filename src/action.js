@@ -19,6 +19,7 @@ try {
       hat: input("farmer_hat"),
       shirt: input("farmer_shirt"),
       overalls: input("farmer_overalls"),
+      hatStyle: input("farmer_hat_style"),
     },
   });
   console.log(`🌱 Farm planted at ${r.out} (${r.total} contributions, crops: ${r.crops.join(" + ")}, ${r.time})`);

@@ -92,6 +92,16 @@ export function darken(hex, amount = 0.25) {
   return `#${c.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 }
 
+export const HAT_STYLES = ["straw", "cap", "none"];
+
+/** "straw" (default), "cap" or "none". */
+export function parseHatStyle(value) {
+  if (value === undefined || value === null || value === "") return "straw";
+  const style = String(value).trim().toLowerCase();
+  if (!HAT_STYLES.includes(style)) throw new Error(`Unknown hat style "${value}". Choose one of: ${HAT_STYLES.join(", ")}`);
+  return style;
+}
+
 /** Palette overrides for { hat, shirt, overalls } (any subset). */
 export function farmerPalette({ hat, shirt, overalls } = {}) {
   const p = {};

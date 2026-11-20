@@ -21,6 +21,10 @@ export const TEXTS = {
     weather: "weather",
     dress: "🧑‍🌾 Dress your farmer",
     hat: "Hat",
+    hatStyle: "Hat style",
+    opt_hat_straw: "👒 straw hat",
+    opt_hat_cap: "🧢 cap",
+    opt_hat_none: "no hat",
     shirt: "Shirt",
     overalls: "Overalls",
     plant: "🌱 Plant my farm",
@@ -88,6 +92,10 @@ export const TEXTS = {
     weather: "clima",
     dress: "🧑‍🌾 Viste a tu granjero",
     hat: "Sombrero",
+    hatStyle: "Estilo de sombrero",
+    opt_hat_straw: "👒 sombrero de paja",
+    opt_hat_cap: "🧢 gorra",
+    opt_hat_none: "sin sombrero",
     shirt: "Camisa",
     overalls: "Overol",
     plant: "🌱 Plantar mi granja",
@@ -155,6 +163,10 @@ export const TEXTS = {
     weather: "clima",
     dress: "🧑‍🌾 Vista seu fazendeiro",
     hat: "Chapéu",
+    hatStyle: "Estilo de chapéu",
+    opt_hat_straw: "👒 chapéu de palha",
+    opt_hat_cap: "🧢 boné",
+    opt_hat_none: "sem chapéu",
     shirt: "Camisa",
     overalls: "Macacão",
     plant: "🌱 Plantar minha fazenda",
@@ -222,6 +234,10 @@ export const TEXTS = {
     weather: "météo",
     dress: "🧑‍🌾 Habillez votre fermier",
     hat: "Chapeau",
+    hatStyle: "Style de chapeau",
+    opt_hat_straw: "👒 chapeau de paille",
+    opt_hat_cap: "🧢 casquette",
+    opt_hat_none: "sans chapeau",
     shirt: "Chemise",
     overalls: "Salopette",
     plant: "🌱 Planter ma ferme",
@@ -304,7 +320,7 @@ export function safeFilename(user) {
 
 /** Build the farm URL for the given form values, omitting defaults like the page always has. */
 export function buildFarmUrl(baseHref, options) {
-  const { user, crop, season, time, weather, hat, shirt, overalls } = options;
+  const { user, crop, season, time, weather, hat, shirt, overalls, hatStyle } = options;
   const p = new URLSearchParams({ user: String(user ?? "").trim() });
   for (const [key, fallback] of [["crop", "auto"], ["season", "none"], ["time", "auto"]]) {
     const value = options[key] ?? fallback;
@@ -314,6 +330,7 @@ export function buildFarmUrl(baseHref, options) {
   for (const [key, value] of [["hat", hat], ["shirt", shirt], ["overalls", overalls]]) {
     if (value && value !== DEFAULTS[key]) p.set(key, value);
   }
+  if (hatStyle && hatStyle !== "straw") p.set("hat_style", hatStyle);
   return new URL(`api/farm?${p}`, baseHref).href;
 }
 
@@ -372,6 +389,7 @@ export function createFarmApp({
       hat: $("hat").value,
       shirt: $("shirt").value,
       overalls: $("overalls").value,
+      hatStyle: $("hatstyle")?.value,
     };
   }
 

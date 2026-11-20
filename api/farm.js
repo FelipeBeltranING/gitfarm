@@ -42,7 +42,7 @@ export default async function handler(req, res) {
       time: q.time || "auto",
       timezone: q.timezone || "UTC",
       weather: parseBool(q.weather, true),
-      farmer: { hat: q.hat || undefined, shirt: q.shirt || undefined, overalls: q.overalls || undefined },
+      farmer: { hat: q.hat || undefined, shirt: q.shirt || undefined, overalls: q.overalls || undefined, hatStyle: q.hat_style || undefined },
       streak: demo && q.streak ? Number(q.streak) : undefined,
     });
     // Contributions change during the day; refresh every few hours, serve stale while revalidating.

@@ -103,6 +103,7 @@ Living in the tropics? `rainy` and `dry` are made for you 🌴 (ducks included i
 farmer_hat: "#efc96d"
 farmer_shirt: "#d9473b"
 farmer_overalls: "#3d72bd"
+farmer_hat_style: straw   # or cap, none
 ```
 
 ## Web generator
@@ -115,7 +116,7 @@ The image is generated on the fly and refreshed every few hours.
 ```
 
 All the options below work as query parameters (`crop`, `season`, `time`, `timezone`, `weather`,
-`hat`, `shirt`, `overalls`).
+`hat`, `shirt`, `overalls`, `hat_style`).
 
 **Deploy your own** (free on Vercel): import this repo at [vercel.com/new](https://vercel.com/new),
 optionally add a `GITHUB_TOKEN` environment variable for higher API limits, and you're done.
@@ -182,6 +183,7 @@ That's it. Your farm replants itself every day.
 | `timezone` | `UTC` | IANA time zone used by `time: auto` |
 | `weather` | `true` | Clouds and showers |
 | `farmer_hat` / `farmer_shirt` / `farmer_overalls` | classic farmer | Hex colors |
+| `farmer_hat_style` | `straw` | `straw`, `cap` or `none` |
 
 ## Run it locally
 

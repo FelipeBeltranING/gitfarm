@@ -46,6 +46,9 @@ inputs:
   farmer_overalls:
     description: "Overalls color, e.g. #3d72bd."
     required: false
+  farmer_hat_style:
+    description: "Hat style: straw (default), cap or none."
+    required: false
 runs:
   using: "node24"
   main: "src/action.js"

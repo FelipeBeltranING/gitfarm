@@ -31,6 +31,7 @@ if (args.help) {
   --farmer-hat <hex>        farmer colors, e.g. #efc96d
   --farmer-shirt <hex>
   --farmer-overalls <hex>
+  --farmer-hat-style <style> straw (default), cap or none
   --demo [seed]             fake data, no network
   --streak <days>           preview the animals for a given streak`);
   process.exit(0);
@@ -48,7 +49,7 @@ generate({
   time: args.time ?? (args.demo ? "day" : "auto"),
   timezone: args.timezone,
   weather: parseBool(args.weather, true),
-  farmer: { hat: args["farmer-hat"], shirt: args["farmer-shirt"], overalls: args["farmer-overalls"] },
+  farmer: { hat: args["farmer-hat"], shirt: args["farmer-shirt"], overalls: args["farmer-overalls"], hatStyle: args["farmer-hat-style"] },
   demo: args.demo ? (args.demo === true ? 42 : Number(args.demo)) : false,
 })
   .then((r) => console.log(`🌱 ${r.out} — ${r.total} contributions, crops: ${r.crops.join(" + ")}, ${r.time}, ${(r.bytes / 1024).toFixed(0)} KB`))

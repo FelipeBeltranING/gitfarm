@@ -113,6 +113,24 @@ test("butterflies flutter over the spring flowers, out of sync and never at nigh
   for (const b of [0, 1, 2]) assert.match(still, new RegExp(`\\.bf${b}\\{transform:translate\\(`), `butterfly ${b} has a still position`);
 });
 
+test("the farmer can wear a straw hat, a cap or no hat", () => {
+  const farmer = (hatStyle) => render({ farmer: { hatStyle } });
+  assert.equal(farmer("straw"), render(), "straw is the default");
+  assert.equal(farmer(undefined), render());
+  const looks = new Set(["straw", "cap", "none"].map(farmer));
+  assert.equal(looks.size, 3, "each style looks different");
+  for (const style of ["cap", "none"]) assertWellFormed(farmer(style));
+  assert.throws(() => farmer("crown"), /Unknown hat style/);
+});
+
+test("hat styles also change the watering farmer", () => {
+  const busy = cal.weeks.map((week) => week.map((day) => day && { ...day, count: day.count + 3 }));
+  const sprite = (hatStyle) => renderFarm({ user: "octocat", total: 999, weeks: busy, crop: "corn", farmer: { hatStyle } }).match(/<g id="farmerW">.*?<\/g>/)?.[0];
+  assert.ok(sprite("straw"), "the demo farm has watering days");
+  assert.notEqual(sprite("cap"), sprite("straw"));
+  assert.notEqual(sprite("none"), sprite("straw"));
+});
+
 test("an owl sits on the fence at night only", () => {
   assert.doesNotMatch(render({ time: "day" }), /href="#owlA"/);
   const night = render({ time: "night" });

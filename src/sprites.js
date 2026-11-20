@@ -70,6 +70,32 @@ export const FARMER_B = [
   "......kNNk..",
 ];
 
+// --- Farmer hats --------------------------------------------------------------
+// A hat style replaces the first five rows of a farmer sprite ("straw" is the default, already drawn).
+const HATS = {
+  cap: [
+    "....kkkk....",
+    "..kkHHHHkk..",
+    "..kHHHHHHk..",
+    "..kHHbbHHk..",
+    "..kkhhhhkk..",
+  ],
+  none: [
+    "............",
+    "....kkkk....",
+    "...kNNNNk...",
+    "..kNNNNNNk..",
+    "..kNNFFNNk..",
+  ],
+};
+
+export function withHat(rows, style = "straw") {
+  const hat = HATS[style];
+  if (!hat) return rows;
+  const width = rows[0].length;
+  return [...hat.map((row) => row.padEnd(width, ".")), ...rows.slice(hat.length)];
+}
+
 // --- Ground tiles, 8x8 ------------------------------------------------------
 export const TILE_GRASS = [
   ".gggggg.",

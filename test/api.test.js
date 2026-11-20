@@ -24,6 +24,15 @@ test("demo farm is served as a cacheable SVG", async () => {
   assert.match(r.body, /class="dog"/);
 });
 
+test("hat_style changes the farmer's hat and bad styles become an error image", async () => {
+  const plain = await call({ demo: "1" });
+  const cap = await call({ demo: "1", hat_style: "cap" });
+  assert.equal(cap.status, 200);
+  assert.notEqual(cap.body, plain.body);
+  assert.doesNotMatch(cap.body, /data-gitfarm-error/);
+  assert.match((await call({ demo: "1", hat_style: "crown" })).body, /Unknown hat style/);
+});
+
 test("invalid usernames get a friendly error image", async () => {
   for (const user of ["", "bad--name", "-start", "a".repeat(40), "../etc"]) {
     const r = await call({ user });
