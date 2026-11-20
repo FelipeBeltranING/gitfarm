@@ -732,6 +732,46 @@ export const BIRD_FLY_B = [ // wings down
   "u...u..",
 ];
 
+export const OWL_A = [ // night owl, looking at you
+  "m.mmmm.m",
+  "mMMMMMMm",
+  "MwkMMkwM",
+  "MMMOOMMM",
+  "mMTTTTMm",
+  "mMTtTtMm",
+  "mMTTTTMm",
+  ".mMMMMm.",
+  "..O..O..",
+];
+
+export const OWL_B = [ // head turned to the side
+  "m.mmmm.m",
+  "mMMMMMMm",
+  "MMMMwkMM",
+  "MMMMMMOO",
+  "mMTTTTMm",
+  "mMTtTtMm",
+  "mMTTTTMm",
+  ".mMMMMm.",
+  "..O..O..",
+];
+
+// --- Winter: a snowman next to the barn -------------------------------------
+export const SNOWMAN = [
+  "..kkkk..",
+  "..kkkk..",
+  ".kkkkkk.",
+  ".xAAAAx.",
+  ".AkAAkA.",
+  ".AA1AAA.",
+  ".xAAAAx.",
+  ".bbbbbb.",
+  "xAAkAAAx",
+  "AAAAAAAA",
+  "xAAkAAAx",
+  ".xxxxxx.",
+];
+
 export const CAT_SLEEPING = [
   ".1.1.....",
   ".1111....",

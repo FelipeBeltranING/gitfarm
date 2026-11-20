@@ -11,6 +11,7 @@ const BASE = {
   particles: null, // "leaves" | "snow"
   flowers: false,
   puddles: false,
+  snowman: false,
   rainShare: 0.22, // fraction of the weather cycle with rain (when weather is on)
 };
 
@@ -34,6 +35,7 @@ const THEMES = {
     tuft: "#ffffff",
     legend: "#33454f",
     particles: "snow",
+    snowman: true,
     rainShare: 0,
     palette: { g: "#e4edf2", G: "#d0dde6", q: "#f6fafc", L: "#3f8a5a", l: "#69a87a" },
   },

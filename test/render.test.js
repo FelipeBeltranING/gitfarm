@@ -113,6 +113,23 @@ test("butterflies flutter over the spring flowers, out of sync and never at nigh
   for (const b of [0, 1, 2]) assert.match(still, new RegExp(`\\.bf${b}\\{transform:translate\\(`), `butterfly ${b} has a still position`);
 });
 
+test("an owl sits on the fence at night only", () => {
+  assert.doesNotMatch(render({ time: "day" }), /href="#owlA"/);
+  const night = render({ time: "night" });
+  assert.equal((night.match(/href="#owlA"/g) ?? []).length, 1);
+  assert.equal((night.match(/href="#owlB"/g) ?? []).length, 1, "the owl turns its head");
+  assert.equal(night, render({ time: "night" }));
+  const still = night.match(/@media \(prefers-reduced-motion:reduce\)\{([\s\S]*?)\n\}/)[1];
+  assert.match(still, /\.gb[,{]/, "the turned-head frame hides when motion is off");
+});
+
+test("a snowman stands by the barn in winter and no other season", () => {
+  assert.match(render({ season: "winter" }), /href="#snowman" x="\d+" y="\d+"/);
+  for (const season of ["none", "spring", "summer", "autumn", "rainy", "dry"]) {
+    assert.doesNotMatch(render({ season }), /href="#snowman"/, season);
+  }
+});
+
 test("rainy season still has puddles on empty days", () => {
   assert.match(render({ season: "rainy" }), /href="#puddle"/);
 });

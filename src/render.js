@@ -4,7 +4,7 @@ import {
   SPROUT, SMALL, SPARKLE, CROPS,
   CHICKEN_A, CHICKEN_B, COW_A, COW_B, SHEEP_A, SHEEP_B, HORSE_A, HORSE_B, DOG_A, DOG_B, HAY,
   SCARECROW, SHACK, BARN, SILO, DROPS, PUDDLE, FLOWER,
-  BIRD_PERCHED, BIRD_PECK, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING, DUCK_A, DUCK_B,
+  BIRD_PERCHED, BIRD_PECK, BIRD_FLY_A, BIRD_FLY_B, CAT_SLEEPING, DUCK_A, DUCK_B, OWL_A, OWL_B, SNOWMAN,
 } from "./sprites.js";
 import { computeStats, unlockedAnimals, nextUnlock } from "./stats.js";
 import { themeFor, resolveSeason, farmerPalette } from "./themes.js";
@@ -423,6 +423,15 @@ export function renderFarm({
     extraCss.push(`.zz{font:bold 9px ${FONT};fill:#fff3d1;opacity:0;animation:zz 2.4s linear infinite}
 @keyframes zz{0%{opacity:0;transform:translate(0,0)}20%{opacity:.9}100%{opacity:0;transform:translate(-10px,-12px)}}`);
   }
+  // Winter: a snowman guards the barn.
+  if (theme.snowman) pasture.push(`<use href="#snowman" x="${width - 14}" y="${floorY}"/>`);
+  // Night: an owl on one of the bottom fence posts, turning its head now and then.
+  if (night) {
+    const posts = Math.floor((gridW + 20) / (PITCH * 4)) + 1;
+    const post = 1 + Math.floor(hash(seedFrom(`${user}|owl`)) * Math.max(1, posts - 2));
+    const ox = MARGIN_X - 10 + post * PITCH * 4 + 2;
+    pasture.push(`<g class="owl"><use href="#owlA" x="${ox}" y="${fenceBottom - 3}" class="ga" style="animation-delay:-2.4s"/><use href="#owlB" x="${ox}" y="${fenceBottom - 3}" class="gb" style="animation-delay:-2.4s"/></g>`);
+  }
   const hayX = barnX - (building === "barn+silo" ? 54 : 44);
   pasture.push(`<use href="#hay" x="${hayX}" y="${floorY - 14}"/>`);
 
@@ -647,6 +656,8 @@ export function renderFarm({
   footDef("birdA", BIRD_FLY_A);
   footDef("birdB", BIRD_FLY_B);
   footDef("cat", CAT_SLEEPING);
+  if (night) { footDef("owlA", OWL_A); footDef("owlB", OWL_B); }
+  if (theme.snowman) footDef("snowman", SNOWMAN);
   if (waterWindows.length) { def("farmerW", FARMER_WATER); def("drops", DROPS); }
   if (theme.puddles) { def("puddle", PUDDLE); def("duckA", DUCK_A); def("duckB", DUCK_B); }
   if (ducks.size) extraCss.push(".bob{animation:bob 1.6s step-end infinite}@keyframes bob{50%{transform:translate(0,1px)}}");

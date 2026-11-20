@@ -87,9 +87,9 @@ Longest streak, not current: breaking your streak never takes your animals away.
 
 | Option | Values | What you get |
 | --- | --- | --- |
-| `season` | `none` (default), `spring`, `summer`, `autumn`, `winter`, `rainy`, `dry` | Spring flowers with butterflies, falling autumn leaves, snow, puddles in the rainy season, a yellow dry season |
+| `season` | `none` (default), `spring`, `summer`, `autumn`, `winter`, `rainy`, `dry` | Spring flowers with butterflies, falling autumn leaves, snow and a snowman, puddles (and ducks) in the rainy season, a yellow dry season |
 | | `auto` / `auto-south` | Follows the calendar in the northern / southern hemisphere |
-| `time` | `auto` (default), `day`, `night` | Night owls (40%+ of activity between 20:00 and 05:00) get a night farm with a moon and fireflies |
+| `time` | `auto` (default), `day`, `night` | Night owls (40%+ of activity between 20:00 and 05:00) get a night farm with a moon, fireflies and an owl on the fence |
 | `timezone` | `UTC` (default) or any IANA zone, e.g. `America/Bogota` | Used by `time: auto` |
 | `weather` | `true` (default) / `false` | Cloud shadows drifting over the field and the occasional shower |
 
