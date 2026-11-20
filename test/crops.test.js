@@ -12,6 +12,16 @@ test("languages map to crops", () => {
   assert.equal(cropForLanguage("Brainfuck"), "wheat");
 });
 
+test("more languages grow a crop of their own (not just wheat)", () => {
+  const expected = {
+    Solidity: "sunflower", Groovy: "coffee", Gleam: "carrot", Prolog: "carrot", "Vim Script": "rice", Nim: "chili",
+    COBOL: "potato", Pascal: "potato", Delphi: "potato", Ada: "potato", "Visual Basic .NET": "potato", TeX: "potato",
+    "Common Lisp": "watermelon", "Emacs Lisp": "watermelon", Scheme: "watermelon", Racket: "watermelon",
+  };
+  for (const [language, crop] of Object.entries(expected)) assert.equal(cropForLanguage(language), crop, language);
+  assert.deepEqual(parseCropList("potato, watermelon").map((c) => c.crop), ["potato", "watermelon"]);
+});
+
 test("languages growing the same crop are merged", () => {
   const mix = mixCrops([
     { language: "JavaScript", share: 0.35 },

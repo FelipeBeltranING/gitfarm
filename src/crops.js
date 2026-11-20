@@ -8,6 +8,7 @@ const LANGUAGE_CROPS = {
   CSS: "sunflower",
   Vue: "sunflower",
   Svelte: "sunflower",
+  Solidity: "sunflower",
   Rust: "tomato",
   Go: "tomato",
   Ruby: "tomato",
@@ -16,6 +17,7 @@ const LANGUAGE_CROPS = {
   "C++": "coffee",
   "C#": "coffee",
   Java: "coffee",
+  Groovy: "coffee",
   // mobile
   Kotlin: "strawberry",
   Swift: "strawberry",
@@ -42,6 +44,8 @@ const LANGUAGE_CROPS = {
   OCaml: "carrot",
   "F#": "carrot",
   Elm: "carrot",
+  Gleam: "carrot",
+  Prolog: "carrot",
   // infra & scripting
   Shell: "rice",
   PowerShell: "rice",
@@ -49,15 +53,36 @@ const LANGUAGE_CROPS = {
   HCL: "rice",
   Nix: "rice",
   Makefile: "rice",
+  "Vim Script": "rice",
+  "Vim script": "rice",
 
   Zig: "chili",
   Assembly: "chili",
+  Nim: "chili",
   Perl: "grape",
   Raku: "grape",
   Crystal: "grape",
+
+  // veterans
+  COBOL: "potato",
+  Pascal: "potato",
+  Delphi: "potato",
+  Ada: "potato",
+  "Visual Basic": "potato",
+  "Visual Basic .NET": "potato",
+  VBA: "potato",
+  TeX: "potato",
+  // the Lisp family
+  "Common Lisp": "watermelon",
+  "Emacs Lisp": "watermelon",
+  Scheme: "watermelon",
+  Racket: "watermelon",
+  Fennel: "watermelon",
+  Janet: "watermelon",
+  Hy: "watermelon",
 };
 
-export const CROP_NAMES = ["corn", "sunflower", "tomato", "coffee", "strawberry", "pumpkin", "cacao", "carrot", "rice", "wheat", "avocado", "chili", "grape"];
+export const CROP_NAMES = ["corn", "sunflower", "tomato", "coffee", "strawberry", "pumpkin", "cacao", "carrot", "rice", "wheat", "avocado", "chili", "grape", "potato", "watermelon"];
 
 export const MIN_SHARE = 0.15;
 export const MAX_CROPS = 3;
