@@ -361,25 +361,27 @@ test("the Copy button falls back when the clipboard is unavailable", async () =>
   assert.equal(els.copy.textContent, "Copy");
 });
 
-test("pickLanguage uses Spanish for any es* locale and English otherwise", async () => {
+test("pickLanguage picks Spanish, Portuguese or French by locale and English otherwise", async () => {
   const { pickLanguage } = await import("../public/app.js");
   for (const lang of ["es", "es-MX", "es_CO", "ES-ar"]) assert.equal(pickLanguage(lang), "es");
-  for (const lang of ["en-US", "fr", "est", "", undefined, null]) assert.equal(pickLanguage(lang), "en");
+  for (const lang of ["pt", "pt-BR", "pt_PT", "PT-br"]) assert.equal(pickLanguage(lang), "pt");
+  for (const lang of ["fr", "fr-CA", "fr_FR", "FR-be"]) assert.equal(pickLanguage(lang), "fr");
+  for (const lang of ["en-US", "de", "est", "fra", "ptx", "", undefined, null]) assert.equal(pickLanguage(lang), "en");
 });
 
-test("every data-i18n key in index.html exists in both languages", async () => {
+test("every data-i18n key in index.html exists in every language", async () => {
   const { TEXTS } = await import("../public/app.js");
   const html = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
   const keys = [...html.matchAll(/data-i18n(?:-alt|-content)?="([^"]+)"/g)].map((m) => m[1]);
   assert.ok(keys.length > 30);
   for (const key of keys) {
-    assert.ok(TEXTS.en[key], `en is missing ${key}`);
-    assert.ok(TEXTS.es[key], `es is missing ${key}`);
+    for (const lang of Object.keys(TEXTS)) assert.ok(TEXTS[lang][key], `${lang} is missing ${key}`);
   }
-  assert.deepEqual(Object.keys(TEXTS.es).sort(), Object.keys(TEXTS.en).sort());
+  for (const lang of Object.keys(TEXTS)) assert.deepEqual(Object.keys(TEXTS[lang]).sort(), Object.keys(TEXTS.en).sort(), lang);
+  assert.deepEqual(Object.keys(TEXTS).sort(), ["en", "es", "fr", "pt"]);
 });
 
-test("a Spanish browser gets Spanish page text and status messages", async () => {
+for (const [lang, locale, user] of [["es", "es-MX", /tu-usuario/], ["pt", "pt-BR", /seu-usuario/], ["fr", "fr-CA", /votre-nom/]]) test(`a ${locale} browser gets ${lang} page text and status messages`, async () => {
   const { TEXTS } = await import("../public/app.js");
   const tagged = [
     Object.assign(new FakeElement("a"), { attrs: { "data-i18n": "tagline" } }),
@@ -407,13 +409,13 @@ test("a Spanish browser gets Spanish page text and status messages", async () =>
     location: { href: "https://gitfarm.test/", search: "" },
     history: { replaceState() {} },
     fetch: () => new Promise(() => {}),
-    navigator: { language: "es-MX" },
+    navigator: { language: locale },
   });
-  assert.equal(documentElement.lang, "es");
-  assert.equal(tagged[0].textContent, TEXTS.es.tagline);
-  assert.equal(tagged[1].textContent, TEXTS.es["opt_season_auto-south"]);
+  assert.equal(documentElement.lang, lang);
+  assert.equal(tagged[0].textContent, TEXTS[lang].tagline);
+  assert.equal(tagged[1].textContent, TEXTS[lang]["opt_season_auto-south"]);
   assert.equal(tagged[2].textContent, "keep");
-  assert.match(els.snippet.textContent, /tu-usuario/);
+  assert.match(els.snippet.textContent, user);
   els.form.requestSubmit();
-  assert.equal(els.status.textContent, TEXTS.es.empty);
+  assert.equal(els.status.textContent, TEXTS[lang].empty);
 });
