@@ -117,15 +117,17 @@ The [issues](https://github.com/FelipeBeltranING/gitfarm/issues) are the roadmap
 
 Comment on the issue before you start, so nobody duplicates work.
 
-### More ideas up for grabs
+### Open ideas (iteration 5)
 
-These don't have an issue yet. Open one to claim it, or to propose your own:
+Each of these has an issue. Comment on it to claim it:
 
-- 🌾 **A crop for a language that still grows wheat**: Solidity, Nim, Gleam, Groovy, TeX, COBOL...
-- 🐴 **A horse for a 200-day streak**, so long streaks keep unlocking something after the dog.
-- 🦉 **An owl on the fence at night** that turns its head now and then.
-- ⛄ **A snowman next to the barn in winter.**
-- 🐝 **Bees buzzing around the harvest plots in summer.**
-- 🌈 **A rainbow after the shower** when `weather` is on.
-- 🌍 **The web generator in your language**: add a block to `TEXTS` in `public/app.js` (copy the
-  `es` one) and teach `pickLanguage()` to choose it.
+- 🐴 [A horse for a 200-day streak](https://github.com/FelipeBeltranING/gitfarm/issues/39)
+- 🦉 [An owl on the fence at night](https://github.com/FelipeBeltranING/gitfarm/issues/40)
+- ⛄ [A snowman next to the barn in winter](https://github.com/FelipeBeltranING/gitfarm/issues/41)
+- 🐝 [Bees around the harvest plots in summer](https://github.com/FelipeBeltranING/gitfarm/issues/42)
+- 🌈 [A rainbow after the shower](https://github.com/FelipeBeltranING/gitfarm/issues/43)
+- 🌾 [Map more languages to crops](https://github.com/FelipeBeltranING/gitfarm/issues/44), 🥔 [a potato crop](https://github.com/FelipeBeltranING/gitfarm/issues/45) and 🍉 [a watermelon crop](https://github.com/FelipeBeltranING/gitfarm/issues/46)
+- 🌍 [The web generator in your language](https://github.com/FelipeBeltranING/gitfarm/issues/47)
+- 📦 [Publish to npm](https://github.com/FelipeBeltranING/gitfarm/issues/48), 🧢 [farmer hats](https://github.com/FelipeBeltranING/gitfarm/issues/49) and 🖼️ [visual regression checks in CI](https://github.com/FelipeBeltranING/gitfarm/issues/50)
+
+Have another idea? Open an issue to propose it.

@@ -1,11 +1,11 @@
 // Creates the labels and issues listed in backlog.json using the GitHub CLI.
 // Usage: gh auth login   (once)
-//        node scripts/create-issues.mjs [owner/repo]
+//        node scripts/create-issues.mjs [owner/repo] [backlog file in scripts/, default backlog.json]
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
 const repo = process.argv[2] ?? "FelipeBeltranING/gitfarm";
-const { labels, issues } = JSON.parse(readFileSync(new URL("./backlog.json", import.meta.url), "utf8"));
+const { labels, issues } = JSON.parse(readFileSync(new URL(`./${process.argv[3] ?? "backlog.json"}`, import.meta.url), "utf8"));
 const gh = (...args) => execFileSync("gh", [...args, "--repo", repo], { encoding: "utf8" }).trim();
 
 for (const l of labels) {

@@ -1,0 +1,67 @@
+{
+  "labels": [
+    { "name": "iteration-5", "color": "ec7f2c", "description": "Iteration 5: more life on the farm and wider reach" }
+  ],
+  "issues": [
+    {
+      "title": "🐴 Add a horse for a 200-day streak",
+      "labels": ["enhancement", "pixel-art", "good first issue", "iteration-5"],
+      "body": "## Idea\nThe dog unlocks at 100 days and then nothing happens, so long streaks have no goal. Add a **horse** that unlocks at a **200-day** streak and wanders the pasture like the cow and the sheep.\n\n## Where to start\n- Copy how the sheep was added: `SHEEP_A` / `SHEEP_B` in `src/sprites.js`, `SHEEP_AT` and `unlockedAnimals()` in `src/stats.js`, the `animals.sheep` block with `wander()` in `src/render.js`.\n- Add the new threshold to `nextUnlock()` so the sign says \"N more days for a horse\".\n- Update the animals table in the README and the `animals` text in `public/app.js` (both `en` and `es`) and `public/index.html`.\n\n## Done when\n- [ ] A 200-day streak shows the horse; 199 does not.\n- [ ] It has a still position in `stillCss` (reduced motion).\n- [ ] Tests in `test/stats.test.js` and `test/render.test.js` are updated."
+    },
+    {
+      "title": "🦉 An owl on the fence at night that turns its head",
+      "labels": ["enhancement", "pixel-art", "help wanted", "iteration-5"],
+      "body": "## Idea\nNight farms have a moon and fireflies, but the fence birds are asleep. Put a **small owl** on the fence when the farm is in night mode. Every few seconds it turns its head (two or three frames, CSS only).\n\n## Where to start\n- Look at how the perched birds (`BIRD_PERCHED`, `BIRD_PECK`) and the cat on the barn are drawn and swapped with CSS in `src/render.js`.\n- Only render it when `night` is true.\n- Pick the fence spot with `hash()` so it is the same on every run.\n\n## Done when\n- [ ] The owl shows at night and never during the day.\n- [ ] It looks right with `prefers-reduced-motion: reduce`.\n- [ ] A test in `test/render.test.js` checks both cases."
+    },
+    {
+      "title": "⛄ A snowman next to the barn in winter",
+      "labels": ["enhancement", "pixel-art", "good first issue", "iteration-5"],
+      "body": "## Idea\nThe winter season only changes colors and adds snowfall. Add a **snowman** next to the barn, standing still (a carrot nose and a scarf are enough).\n\n## Where to start\n- Seasons are palette plus flags in `src/themes.js`. Add a flag such as `snowman: true` to `winter`.\n- Draw the sprite in `src/sprites.js` and place it in `src/render.js` near the barn (see how `BARN` and `SILO` are positioned).\n- Read the \"Add a seasonal touch\" section of `CONTRIBUTING.md`.\n\n## Done when\n- [ ] The snowman shows in winter and in no other season.\n- [ ] A test in `test/render.test.js` checks it."
+    },
+    {
+      "title": "🐝 Bees buzzing around the harvest plots in summer",
+      "labels": ["enhancement", "pixel-art", "help wanted", "iteration-5"],
+      "body": "## Idea\nSummer is the one season with no extra touch. Add **two or three bees** that zigzag around fully grown plots.\n\n## Where to start\n- The butterflies (`BUTTERFLY_A`/`BUTTERFLY_B` and the `bf*` keyframes in `src/render.js`) are a ready-made example of a looping flight path with a still position for reduced motion.\n- Add a `bees` flag to the `summer` theme in `src/themes.js` and pick the plots with `hash()`.\n\n## Done when\n- [ ] Bees appear in summer only, and not on night farms.\n- [ ] They have a still position in `stillCss`.\n- [ ] The size test (`the busiest farm stays under 300 KB`) still passes."
+    },
+    {
+      "title": "🌈 A rainbow after the shower when weather is on",
+      "labels": ["enhancement", "pixel-art", "help wanted", "iteration-5"],
+      "body": "## Idea\nWhen `weather` is enabled the clouds and the rain loop every 36 seconds. When the shower ends, fade in a **rainbow** in the sky for a few seconds, then fade it out before the next cloud.\n\n## Where to start\n- `WEATHER_CYCLE` and the rain/cloud layer in `src/render.js`.\n- Opacity-only keyframes are the cheapest option (see `windowed()`).\n\n## Done when\n- [ ] The rainbow shows only with `weather: true` and in seasons that have rain (not winter).\n- [ ] Reduced motion shows no rainbow, or a still one.\n- [ ] A test checks it."
+    },
+    {
+      "title": "🌾 Map more languages to crops (Solidity, Nim, Gleam, Groovy, TeX, COBOL...)",
+      "labels": ["documentation", "good first issue", "iteration-5"],
+      "body": "## Idea\nLanguages that are not in `LANGUAGE_CROPS` all fall back to 🌾 wheat. Give some of them a better crop, or just a deliberate one.\n\n## Where to start\n- `LANGUAGE_CROPS` in `src/crops.js`. Check the list first: Zig, Assembly, Perl, Raku and Crystal are already taken.\n- Candidates: Solidity, Nim, Gleam, Groovy, TeX, COBOL, Vim Script, Lisp, Racket, Scheme, Ada, Prolog, Visual Basic.\n- Add a few assertions to `test/crops.test.js` and update the table in the README.\n\n## Done when\n- [ ] Each new language has a crop, a test and a row in the README table."
+    },
+    {
+      "title": "🥔 Add a potato crop for the veteran languages",
+      "labels": ["help wanted", "good first issue", "pixel-art", "iteration-5"],
+      "body": "## Idea\nA humble **potato** (a leafy top and a few brown tubers peeking out of the soil) for the languages that have been around forever: COBOL, Pascal, Delphi, Ada, Visual Basic, Fortran-era stuff.\n\n## Where to start\n- Follow the \"Add your crop!\" guide in `CONTRIBUTING.md`. The chili and grape PRs (#38) touch exactly the files you need: `src/sprites.js`, `src/crops.js`, `public/app.js`, `public/index.html`, `src/cli.js`, `action.yml`, README and a test.\n- Each crop is two 8x8 sprites: `grown` and `harvest`.\n\n## Done when\n- [ ] `crop: potato` works in the CLI, the Action and the web generator (English and Spanish).\n- [ ] The languages are mapped and tested."
+    },
+    {
+      "title": "🍉 Add a watermelon crop for the Lisp family",
+      "labels": ["help wanted", "good first issue", "pixel-art", "iteration-5"],
+      "body": "## Idea\nA **watermelon** (green rind, red slice on the harvest frame) for Common Lisp, Scheme, Racket and Emacs Lisp. Parentheses and watermelon seeds both come in bunches.\n\n## Where to start\n- Same files as any new crop; see the \"Add your crop!\" guide in `CONTRIBUTING.md` and the grape PR (#38) as a template.\n- You may need one or two new palette colors in `PALETTE` (`src/sprites.js`).\n\n## Done when\n- [ ] `crop: watermelon` works everywhere crops are listed.\n- [ ] The languages are mapped and tested."
+    },
+    {
+      "title": "🌍 More languages for the web generator (Portuguese, French...)",
+      "labels": ["help wanted", "good first issue", "iteration-5"],
+      "body": "## Idea\nThe generator speaks English and Spanish. Add **Portuguese** (Brazil has a huge GitHub community) and/or **French**, or any language you speak.\n\n## Where to start\n- Copy the `es` block of `TEXTS` in `public/app.js`, translate it, and teach `pickLanguage()` to choose it from the browser locale.\n- There is a test that every `data-i18n` key in `public/index.html` exists in every language; it will tell you what is missing.\n\n## Done when\n- [ ] A browser set to your language gets the translated page and status messages.\n- [ ] `npm test` passes."
+    },
+    {
+      "title": "📦 Publish to npm so `npx gitfarm` works",
+      "labels": ["enhancement", "help wanted", "iteration-5"],
+      "body": "## Idea\n`package.json` already declares a `bin`, but the package is not on npm. Publishing it lets anyone run `npx gitfarm --user octocat --out farm.svg` without cloning the repo.\n\n## Where to start\n- Check what `npm pack --dry-run` includes (`files` field, `.npmignore`) so tests, `tools/` and `examples/` do not ship.\n- Make sure `src/cli.js` works when installed (shebang, executable bit, no dependency on repo-relative paths).\n- Add a publish job triggered by a GitHub release, and a short section in the README.\n\n## Done when\n- [ ] `npm pack` contains only what the CLI needs.\n- [ ] A release workflow publishes with provenance.\n- [ ] The README documents `npx gitfarm`."
+    },
+    {
+      "title": "🧢 Farmer hats: straw hat, cap or no hat",
+      "labels": ["enhancement", "customization", "pixel-art", "iteration-5"],
+      "body": "## Idea\nYou can already change the farmer's colors. Add a `hat` option (`straw` default, `cap`, `none`) so the farmer matches you a bit more.\n\n## Where to start\n- See how farmer colors are handled in `farmerPalette()` in `src/themes.js` and the `FARMER_A` / `FARMER_B` / `FARMER_WATER` sprites in `src/sprites.js`.\n- The new option has to be wired through `src/cli.js`, `action.yml`, the API in `api/` and the web generator form.\n\n## Done when\n- [ ] All three hats render for the walking and watering sprites.\n- [ ] The option is documented in the README and tested."
+    },
+    {
+      "title": "🖼️ Visual regression check for the demo farm in CI",
+      "labels": ["enhancement", "help wanted", "iteration-5"],
+      "body": "## Idea\nPixel art breaks quietly: a sprite shifted by one pixel passes every test. Render the demo farm for each season (and day/night) in CI and compare it with a stored snapshot, so a PR shows exactly what changed visually.\n\n## Where to start\n- `tools/record.mjs` already drives Playwright to capture the SVG.\n- Start simple: compare the SVG text hash against a committed snapshot, and upload the rendered PNGs as workflow artifacts when it changes.\n- Provide a one-line command to update the snapshots on purpose.\n\n## Done when\n- [ ] CI fails when the output changes without updating snapshots.\n- [ ] CONTRIBUTING explains how to update them."
+    }
+  ]
+}
